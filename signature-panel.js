@@ -79,13 +79,16 @@
 
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
 					console.log("mousedown");
-					console.log(event);
 					var x, y, t;
+
 					t= (new Date).getTime - state.startTime;
-					if (event.touches) {
+
+					event.preventDefault();
+
+					if (event.originalEvent.touches) {
 						console.log("have touches");
-						x = event.touches.item(0).pageX - $canvas[0].offsetLeft;
-						y = event.touches.item(0).pageY - $canvas[0].offsetTop;
+						x = event.originalEvent.touches.item(0).pageX - $canvas[0].offsetLeft;
+						y = event.originalEvent.touches.item(0).pageY - $canvas[0].offsetTop;
 					} else {
 						console.log("no touches");
 						x = event.pageX - $canvas[0].offsetLeft;
@@ -96,19 +99,24 @@
 					state.y = y;
 					state.drawing = true;
 					context.beginPath();
-					context.moveTo(event.offsetX, event.offsetY);
+					context.moveTo(x, y);
 					data.clickstream.push({x: state.x, y: state.y, t: 0, action: "mousedown"});
-					event.preventDefault;
 				});
 
 				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
 					var x, y, t;
+					console.log("touchmove")
+
+					t= (new Date).getTime - state.startTime;
+
 					if (state.drawing) {
-						t= (new Date).getTime - state.startTime;
-						if (event.touches) {
-							x = event.touches.item(0).pageX - $canvas[0].offsetLeft;
-							y = event.touches.item(0).pageY - $canvas[0].offsetTop;
+						event.preventDefault();
+						if (event.originalEvent.touches) {
+							console.log("have touches");
+							x = event.originalEvent.touches.item(0).pageX - $canvas[0].offsetLeft;
+							y = event.originalEvent.touches.item(0).pageY - $canvas[0].offsetTop;
 						} else {
+							console.log("no touches");
 							x = event.pageX - $canvas[0].offsetLeft;
 							y = event.pageY - $canvas[0].offsetTop;
 						}
@@ -117,29 +125,14 @@
 						state.x = x;
 						state.y = y;
 						data.clickstream.push({x: state.x, y: state.y, t: t, action: "mousemove"});
-						event.preventDefault;
 					}
 				});
 
 				$(document).bind("mouseup.signaturePanel touchend.signaturePanel touchcancel.signaturePanel", function (event) {
-					var x, y, t;
 					if (state.drawing) {
-						t = (new Date).getTime - state.startTime;
-						if (event.touches) {
-							x = event.touches.item(0).pageX - $canvas[0].offsetLeft;
-							y = event.touches.item(0).pageY - $canvas[0].offsetTop;
-						} else {
-							x = event.pageX - $canvas[0].offsetLeft;
-							y = event.pageY - $canvas[0].offsetTop;
-						}
-						context.lineTo(x, y);
-						context.stroke();
+						event.preventDefault();
 						context.closePath();
-						state.x = x;
-						state.y = y;
 						state.drawing = false;
-						data.clickstream.push({x: state.x, y: state.y, t: t, action: "mouseup"});
-						event.preventDefault;
 					}
 				});
 
