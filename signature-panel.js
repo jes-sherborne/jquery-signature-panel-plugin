@@ -5,15 +5,7 @@
 		"penWidth": 3.0,
 		"clearCaption": "Clear",
 		"okCaption": "OK",
-		"cancelCaption": "Cancel",
-		"drawPrompt": "Sign here using your mouse or touchscreen",
-		"backColor" : "white",
-		"borderColor": "gray"
-	};
-
-	var state = {
-		drawing : false,
-		startTime : 0
+		"cancelCaption": "Cancel"
 	};
 
 	var internal = {
@@ -22,7 +14,11 @@
 
 			r.push("<canvas height=\"" + ($parentDiv.height() - 40) + "px\" width=\"" + ($parentDiv.width() + 0.0) + "px\"></canvas>");
 			r.push("<div style=\"height: 40px; padding: 2px 6px 2px 6px;\">");
-			r.push("<a href=\"#\" class=\"signature-panel-clear\">Clear</a>");
+				r.push("<a href=\"#\" class=\"signature-panel-clear\">" + settings.clearCaption + "</a>");
+				r.push("<div style=\"float: right\">");
+					r.push("<a href=\"#\" class=\"signature-panel-cancel\">" + settings.cancelCaption + "</a>");
+					r.push("<button type=\"button\" class=\"signature-panel-OK\">" + settings.okCaption + "</a>");
+				r.push("</div>");
 			r.push("</div>");
 			return r.join("\n");
 		},
@@ -58,7 +54,9 @@
 				// Attach data storage to this object
 				if (! $this.data("signaturePanel")) {
 					$this.data("signaturePanel", {
-						clickstream : []
+						clickstream: [],
+						startTime: 0,
+						drawing: false
 					});
 				}
 				data = $this.data("signaturePanel");
@@ -77,6 +75,8 @@
 
 				context.lineWidth = settings.penWidth;
 				context.strokeStyle = settings.penColor;
+				context.lineCap = "round";
+				context.lineJoin = "round";
 				context.fillStyle = "none";
 
 				// Attach event handlers
@@ -88,11 +88,11 @@
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
 					var location, t;
 
-					t= (new Date).getTime - state.startTime;
+					t= (new Date).getTime - data.startTime;
 					event.preventDefault();
 					location = internal.processEventLocation(event, $canvas[0]);
-					state.startTime = t;
-					state.drawing = true;
+					data.startTime = t;
+					data.drawing = true;
 					context.beginPath();
 					context.moveTo(location.x, location.y);
 					data.clickstream.push({x: location.x, y: location.y, t: 0, action: "gestureStart"});
@@ -101,8 +101,8 @@
 				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
 					var location, t;
 
-					t= (new Date).getTime - state.startTime;
-					if (state.drawing) {
+					t= (new Date).getTime - data.startTime;
+					if (data.drawing) {
 						event.preventDefault();
 						location = internal.processEventLocation(event, $canvas[0]);
 						context.lineTo(location.x, location.y);
@@ -112,10 +112,10 @@
 				});
 
 				$(document).bind("mouseup.signaturePanel touchend.signaturePanel touchcancel.signaturePanel", function (event) {
-					if (state.drawing) {
+					if (data.drawing) {
 						event.preventDefault();
 						context.closePath();
-						state.drawing = false;
+						data.drawing = false;
 					}
 				});
 
