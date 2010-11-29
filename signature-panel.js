@@ -5,7 +5,9 @@
 		"penWidth": 3.0,
 		"clearCaption": "Clear",
 		"okCaption": "OK",
-		"cancelCaption": "Cancel"
+		"cancelCaption": "Cancel",
+		"okFunction": {},
+		"cancelFunction": {}
 	};
 
 	var internal = {
@@ -17,7 +19,7 @@
 				r.push("<a href=\"#\" class=\"signature-panel-clear\">" + settings.clearCaption + "</a>");
 				r.push("<div style=\"float: right\">");
 					r.push("<a href=\"#\" class=\"signature-panel-cancel\">" + settings.cancelCaption + "</a>");
-					r.push("<button type=\"button\" class=\"signature-panel-OK\">" + settings.okCaption + "</a>");
+					r.push("<button type=\"button\" class=\"signature-panel-ok\">" + settings.okCaption + "</a>");
 				r.push("</div>");
 			r.push("</div>");
 			return r.join("\n");
@@ -83,6 +85,20 @@
 
 				$this.find("a.signature-panel-clear").bind("click.signaturePanel", function () {
 					internal.clearCanvas($canvas, context);
+				});
+
+				$this.find("a.signature-panel-cancel").bind("click.signaturePanel", function () {
+					internal.clearCanvas($canvas, context);
+					if (data.cancelFunction) {
+						data.cancelFunction();
+					}
+				});
+
+				$this.find("button.signature-panel-ok").bind("click.signaturePanel", function () {
+					internal.clearCanvas($canvas, context);
+					if (data.okFunction) {
+						data.okFunction(data.clickstream);
+					}
 				});
 
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
