@@ -77,10 +77,23 @@
 					internal.clearCanvas($canvas, context);
 				});
 
-				$canvas.bind("mousedown.signaturePanel", function (event) {
-					state.startTime = (new Date).getTime();
-					state.x = event.offsetX;
-					state.y = event.offsetY;
+				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
+					console.log("mousedown");
+					console.log(event);
+					var x, y, t;
+					t= (new Date).getTime - state.startTime;
+					if (event.touches) {
+						console.log("have touches");
+						x = event.touches.item(0).pageX - $canvas[0].offsetLeft;
+						y = event.touches.item(0).pageY - $canvas[0].offsetTop;
+					} else {
+						console.log("no touches");
+						x = event.pageX - $canvas[0].offsetLeft;
+						y = event.pageY - $canvas[0].offsetTop;
+					}
+					state.startTime = t;
+					state.x = x;
+					state.y = y;
 					state.drawing = true;
 					context.beginPath();
 					context.moveTo(event.offsetX, event.offsetY);
@@ -88,12 +101,17 @@
 					event.preventDefault;
 				});
 
-				$(document).bind("mousemove.signaturePanel", function (event) {
+				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
 					var x, y, t;
 					if (state.drawing) {
 						t= (new Date).getTime - state.startTime;
-						x = event.pageX - $canvas[0].offsetLeft;
-						y = event.pageY - $canvas[0].offsetTop;
+						if (event.touches) {
+							x = event.touches.item(0).pageX - $canvas[0].offsetLeft;
+							y = event.touches.item(0).pageY - $canvas[0].offsetTop;
+						} else {
+							x = event.pageX - $canvas[0].offsetLeft;
+							y = event.pageY - $canvas[0].offsetTop;
+						}
 						context.lineTo(x, y);
 						context.stroke();
 						state.x = x;
@@ -103,12 +121,17 @@
 					}
 				});
 
-				$(document).bind("mouseup.signaturePanel", function (event) {
+				$(document).bind("mouseup.signaturePanel touchend.signaturePanel touchcancel.signaturePanel", function (event) {
 					var x, y, t;
 					if (state.drawing) {
 						t = (new Date).getTime - state.startTime;
-						x = event.pageX - $canvas[0].offsetLeft;
-						y = event.pageY - $canvas[0].offsetTop;
+						if (event.touches) {
+							x = event.touches.item(0).pageX - $canvas[0].offsetLeft;
+							y = event.touches.item(0).pageY - $canvas[0].offsetTop;
+						} else {
+							x = event.pageX - $canvas[0].offsetLeft;
+							y = event.pageY - $canvas[0].offsetTop;
+						}
 						context.lineTo(x, y);
 						context.stroke();
 						context.closePath();
