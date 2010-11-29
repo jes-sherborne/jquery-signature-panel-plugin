@@ -36,6 +36,19 @@
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.restore();
 
+		},
+		processEventLocation : function(event, canvas) {
+			var x, y;
+
+			if (event.originalEvent.touches) {
+				x = event.originalEvent.touches[0].pageX - canvas.offsetLeft;
+				y = event.originalEvent.touches[0].pageY - canvas.offsetTop;
+			} else {
+				x = event.pageX - canvas.offsetLeft;
+				y = event.pageY - canvas.offsetTop;
+			}
+
+			return {x: x, y: y};
 		}
 	};
 
@@ -78,52 +91,31 @@
 				});
 
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
-					console.log("mousedown");
-					var x, y, t;
+					var location, t;
 
 					t= (new Date).getTime - state.startTime;
-
 					event.preventDefault();
-
-					if (event.originalEvent.touches) {
-						console.log("have touches");
-						x = event.originalEvent.touches.item(0).pageX - $canvas[0].offsetLeft;
-						y = event.originalEvent.touches.item(0).pageY - $canvas[0].offsetTop;
-					} else {
-						console.log("no touches");
-						x = event.pageX - $canvas[0].offsetLeft;
-						y = event.pageY - $canvas[0].offsetTop;
-					}
+					location = internal.processEventLocation(event, $canvas[0]);
 					state.startTime = t;
-					state.x = x;
-					state.y = y;
+					state.x = location.x;
+					state.y = location.y;
 					state.drawing = true;
 					context.beginPath();
-					context.moveTo(x, y);
+					context.moveTo(location.x, location.y);
 					data.clickstream.push({x: state.x, y: state.y, t: 0, action: "mousedown"});
 				});
 
 				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
-					var x, y, t;
-					console.log("touchmove")
+					var location, t;
 
 					t= (new Date).getTime - state.startTime;
-
 					if (state.drawing) {
 						event.preventDefault();
-						if (event.originalEvent.touches) {
-							console.log("have touches");
-							x = event.originalEvent.touches.item(0).pageX - $canvas[0].offsetLeft;
-							y = event.originalEvent.touches.item(0).pageY - $canvas[0].offsetTop;
-						} else {
-							console.log("no touches");
-							x = event.pageX - $canvas[0].offsetLeft;
-							y = event.pageY - $canvas[0].offsetTop;
-						}
-						context.lineTo(x, y);
+						location = internal.processEventLocation(event, $canvas[0]);
+						context.lineTo(location.x, location.y);
 						context.stroke();
-						state.x = x;
-						state.y = y;
+						state.x = location.x;
+						state.y = location.y;
 						data.clickstream.push({x: state.x, y: state.y, t: t, action: "mousemove"});
 					}
 				});
