@@ -12,8 +12,6 @@
 	};
 
 	var state = {
-		x : 0,
-		y : 0,
 		drawing : false,
 		startTime : 0
 	};
@@ -29,13 +27,10 @@
 			return r.join("\n");
 		},
 		clearCanvas : function ($canvas, context) {
-			var canvas = $canvas[0];
-
 			context.save();
 			context.closePath();
-			context.clearRect(0, 0, canvas.width, canvas.height);
+			context.clearRect(0, 0, $canvas[0].width, $canvas[0].height);
 			context.restore();
-
 		},
 		processEventLocation : function(event, canvas) {
 			var x, y;
@@ -97,12 +92,10 @@
 					event.preventDefault();
 					location = internal.processEventLocation(event, $canvas[0]);
 					state.startTime = t;
-					state.x = location.x;
-					state.y = location.y;
 					state.drawing = true;
 					context.beginPath();
 					context.moveTo(location.x, location.y);
-					data.clickstream.push({x: state.x, y: state.y, t: 0, action: "mousedown"});
+					data.clickstream.push({x: location.x, y: location.y, t: 0, action: "gestureStart"});
 				});
 
 				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
@@ -114,9 +107,7 @@
 						location = internal.processEventLocation(event, $canvas[0]);
 						context.lineTo(location.x, location.y);
 						context.stroke();
-						state.x = location.x;
-						state.y = location.y;
-						data.clickstream.push({x: state.x, y: state.y, t: t, action: "mousemove"});
+						data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureContinue"});
 					}
 				});
 
