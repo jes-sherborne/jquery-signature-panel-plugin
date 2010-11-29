@@ -2,8 +2,14 @@
 <html>
 <head>
     <title>Signature Panel Test</title>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script type="text/javascript" src="external/jquery-1.4.4.js"></script>
     <script type="text/javascript" src="signature-panel.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#signature-panel-1").signaturePanel();
+        });
+    </script>
 </head>
 <body>
     <h1>Signature Panel Test</h1>
