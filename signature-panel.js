@@ -1,17 +1,17 @@
 (function($) {
 
-	var settings = {
-		"penColor": "black",
+	var defaults = {
+		"penColor": "#191970",
 		"penWidth": 3.0,
 		"clearCaption": "Clear",
 		"okCaption": "OK",
 		"cancelCaption": "Cancel",
-		"okFunction": {},
-		"cancelFunction": {}
+		"okFunction": null,
+		"cancelFunction": null
 	};
 
 	var internal = {
-		getPanelHtml : function ($parentDiv){
+		getPanelHtml : function (settings, $parentDiv){
 			var r = [];
 
 			r.push("<canvas height=\"" + ($parentDiv.height() - 40) + "px\" width=\"" + ($parentDiv.width() + 0.0) + "px\"></canvas>");
@@ -24,11 +24,15 @@
 			r.push("</div>");
 			return r.join("\n");
 		},
-		clearCanvas : function ($canvas, context) {
+		clearHtmlCanvas : function (canvas, context) {
 			context.save();
 			context.closePath();
-			context.clearRect(0, 0, $canvas[0].width, $canvas[0].height);
+			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.restore();
+		},
+		clearSignature: function (canvas, context, data) {
+			internal.clearHtmlCanvas(canvas, context);
+			data.clearSignature();
 		},
 		processEventLocation : function(event, canvas) {
 			var x, y;
@@ -49,7 +53,7 @@
 		init : function(options) {
 
 			return this.each(function() {
-				var $this, data, $canvas, context;
+				var $this, data, $canvas, canvas, context;
 
 				$this = $(this);
 
@@ -58,25 +62,38 @@
 					$this.data("signaturePanel", {
 						clickstream: [],
 						startTime: 0,
-						drawing: false
+						drawing: false,
+						settings: {},
+						getSignatureData: function () {
+							return {
+								clickstream: this.clickstream,
+								penColor: this.settings.penColor,
+								penWidth: this.settings.penWidth
+							};
+						},
+						clearSignature: function () {
+							this.clickstream = [];
+							this.drawing = false;
+						}
 					});
 				}
 				data = $this.data("signaturePanel");
 
 				// Apply user-supplied options
 				if (options) {
-					$.extend(settings, options);
+					$.extend(data.settings, defaults, options);
 				}
 
 				// Create user interface elements
 				$this.empty();
-				$this.append(internal.getPanelHtml($this));
+				$this.append(internal.getPanelHtml(data.settings, $this));
 
 				$canvas = $this.find("canvas");
+				canvas = $canvas[0];
 				context = $canvas[0].getContext('2d');
 
-				context.lineWidth = settings.penWidth;
-				context.strokeStyle = settings.penColor;
+				context.lineWidth = data.settings.penWidth;
+				context.strokeStyle = data.settings.penColor;
 				context.lineCap = "round";
 				context.lineJoin = "round";
 				context.fillStyle = "none";
@@ -84,21 +101,23 @@
 				// Attach event handlers
 
 				$this.find("a.signature-panel-clear").bind("click.signaturePanel", function () {
-					internal.clearCanvas($canvas, context);
+					internal.clearSignature($canvas[0], context, data);
+					return false;
 				});
 
 				$this.find("a.signature-panel-cancel").bind("click.signaturePanel", function () {
-					internal.clearCanvas($canvas, context);
-					if (data.cancelFunction) {
-						data.cancelFunction();
+					internal.clearSignature($canvas[0], context, data);
+					if (data.settings.cancelFunction) {
+						data.settings.cancelFunction();
 					}
+					return false;
 				});
 
 				$this.find("button.signature-panel-ok").bind("click.signaturePanel", function () {
-					internal.clearCanvas($canvas, context);
-					if (data.okFunction) {
-						data.okFunction(data.clickstream);
+					if (data.settings.okFunction) {
+						data.settings.okFunction(data.getSignatureData());
 					}
+					return false;
 				});
 
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
@@ -155,15 +174,41 @@
 			})
 		},
 
-		clear : function() {
+		drawClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
-				var $canvas, context;
+				var canvas, context, i, inGesture;
 
-				$canvas = $this.find("canvas");
-				context = $canvas[0].getContext('2d');
+				canvas = this;
+				context = canvas.getContext("2d");
 
-				internal.clearCanvas($canvas, context);
+				internal.clearHtmlCanvas(canvas, context);
+				canvas.width = canvas.width;
 
+				//render clickstream
+				context.lineWidth = signatureData.penWidth;
+				context.strokeStyle = signatureData.penColor;
+				context.lineCap = "round";
+				context.lineJoin = "round";
+				context.fillStyle = "none";
+
+				inGesture = false;
+				for (i = 0; i < signatureData.clickstream.length; i++) {
+					if (signatureData.clickstream[i].action === "gestureStart") {
+						if (inGesture) {
+							context.stroke();
+							context.closePath();
+						}
+						context.beginPath();
+						context.moveTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+						inGesture = true;
+					} else if ((signatureData.clickstream[i].action === "gestureContinue") && inGesture) {
+						context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+					}
+				}
+				if (inGesture) {
+					context.stroke();
+					context.closePath();
+				}
 			})
 		}
 
