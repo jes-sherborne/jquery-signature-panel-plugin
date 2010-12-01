@@ -177,7 +177,9 @@
 							return {
 								clickstream: this.clickstream,
 								penColor: this.settings.penColor,
-								penWidth: this.settings.penWidth
+								penWidth: this.settings.penWidth,
+								canvasHeight: this.canvasHeight,
+								canvasWidth: this.canvasWidth
 							};
 						},
 						clearSignature: function () {
@@ -337,7 +339,7 @@
 
 		drawClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
-				var canvas, context, i, inPath;
+				var canvas, context, i, inPath, scalingFactorX, scalingFactorY, scalingFactor, x, y;
 
 				canvas = this;
 				context = canvas.getContext("2d");
@@ -345,8 +347,20 @@
 				internal.clearHtmlCanvas(canvas, context);
 				canvas.width = canvas.width;
 
+				if (canvas.width <= 0) {
+					scalingFactorX = 0;
+				} else {
+					scalingFactorX = canvas.width / signatureData.canvasWidth;
+				}
+				if (canvas.height <= 0) {
+					scalingFactorY = 0;
+				} else {
+					scalingFactorY = canvas.height / signatureData.canvasHeight;
+				}
+				scalingFactor = Math.min(scalingFactorX, scalingFactorY);
+
 				//render clickstream
-				context.lineWidth = signatureData.penWidth;
+				context.lineWidth = signatureData.penWidth * scalingFactor;
 				context.strokeStyle = signatureData.penColor;
 				context.lineCap = "round";
 				context.lineJoin = "round";
@@ -355,18 +369,20 @@
 
 				inPath = false;
 				for (i = 0; i < signatureData.clickstream.length; i++) {
+					x = signatureData.clickstream[i].x * scalingFactor;
+					y = signatureData.clickstream[i].y * scalingFactor;
 					switch (signatureData.clickstream[i].action) {
 					case "gestureResume":
-						context.moveTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+						context.moveTo(x, y);
 						break;
 					case "gestureStart":
-						context.moveTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+						context.moveTo(x, y);
 						break;
 					case "gestureContinue":
-						context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+						context.lineTo(x, y);
 						break;
 					case "gestureSuspend":
-						context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+						context.lineTo(x, y);
 						break;
 					}
 				}
