@@ -351,39 +351,26 @@
 				context.lineCap = "round";
 				context.lineJoin = "round";
 				context.fillStyle = "none";
+				context.beginPath();
 
 				inPath = false;
 				for (i = 0; i < signatureData.clickstream.length; i++) {
 					switch (signatureData.clickstream[i].action) {
 					case "gestureResume":
-						// Same as gestureStart
-					case "gestureStart":
-						if (inPath) {
-							context.stroke();
-							context.closePath();
-						}
-						context.beginPath();
 						context.moveTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
-						inPath = true;
+						break;
+					case "gestureStart":
+						context.moveTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
 						break;
 					case "gestureContinue":
-						if (inPath) {
-							context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
-						}
+						context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
 						break;
 					case "gestureSuspend":
-						if (inPath) {
-							context.stroke();
-							context.closePath();
-							inPath = false;
-						}
+						context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
 						break;
 					}
 				}
-				if (inPath) {
-					context.stroke();
-					context.closePath();
-				}
+				context.stroke();
 			})
 		}
 
