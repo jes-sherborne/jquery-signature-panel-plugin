@@ -23,7 +23,7 @@
 				r.push("</div>");
 			r.push("</div>");
 			return r.join("\n");
-		},
+		}, 
 		clearHtmlCanvas : function (canvas, context) {
 			context.save();
 			context.closePath();
@@ -46,6 +46,9 @@
 			}
 
 			return {x: x, y: y};
+		},
+		calculateBoundaryCrossing: function(location, data) {
+			return location;
 		}
 	};
 
@@ -62,8 +65,11 @@
 					$this.data("signaturePanel", {
 						clickstream: [],
 						startTime: 0,
-						drawing: false,
+						drawState: "none",
+						canvasHeight: 0,
+						canvasWidth: 0,
 						settings: {},
+						lastLocation: {},
 						getSignatureData: function () {
 							return {
 								clickstream: this.clickstream,
@@ -73,7 +79,7 @@
 						},
 						clearSignature: function () {
 							this.clickstream = [];
-							this.drawing = false;
+							this.drawState = "none";
 						}
 					});
 				}
@@ -91,6 +97,9 @@
 				$canvas = $this.find("canvas");
 				canvas = $canvas[0];
 				context = $canvas[0].getContext('2d');
+
+				data.canvasHeight = canvas.height;
+				data.canvasWidth = canvas.width;
 
 				context.lineWidth = data.settings.penWidth;
 				context.strokeStyle = data.settings.penColor;
@@ -127,30 +136,76 @@
 					event.preventDefault();
 					location = internal.processEventLocation(event, $canvas[0]);
 					data.startTime = t;
-					data.drawing = true;
+					data.drawState = "draw";
 					context.beginPath();
 					context.moveTo(location.x, location.y);
+					data.lastLocation = location;
 					data.clickstream.push({x: location.x, y: location.y, t: 0, action: "gestureStart"});
 				});
 
 				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
-					var location, t;
+					var location, t, inBounds, boundaryLocation, lastLocationInBounds;
 
 					t= (new Date).getTime - data.startTime;
-					if (data.drawing) {
+
+					if ((data.drawState === "draw") || (data.drawState === "suspend")) {
 						event.preventDefault();
 						location = internal.processEventLocation(event, $canvas[0]);
-						context.lineTo(location.x, location.y);
-						context.stroke();
-						data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureContinue"});
+						inBounds = !((location.x < 0) || (location.x > data.canvasWidth) || (location.y < 0) || (location.y > data.canvasHeight));
+					} else {
+						return;
+					}
+
+					/*  We're catching a number of tricky cases here. We're capturing mouse movements even outside the
+						canvas so that we can maintain a continuous gesture for the user even if they draw outside the
+						lines. It's tempting to just record all the mouse movements even if they're out-of-bounds, but
+						that really isn't OK, because we're not showing those captured points to the user. It would be
+						misleading because we're showing the signature to the user, and they would reasonably assume
+						that what we're showing is what they're approving when they click OK.
+
+						If we just record the points that occur in bounds, we get ugly (and bogus) connecting lines
+						when we cross back into bounds.
+
+						To get around these things, we calculate the boundary crossing point and add it to the list.
+						To indicate that the gesture is still continuing, we record it as a suspension.
+					 */
+
+					lastLocationInBounds = (data.drawState === "draw");
+
+					if (lastLocationInBounds) {
+						if (inBounds) {
+							context.lineTo(location.x, location.y);
+							context.stroke();
+							data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureContinue"});
+							data.lastLocation = location;
+						} else {
+							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
+							context.lineTo(boundaryLocation.x, boundaryLocation.y);
+							context.stroke();
+							context.closePath();
+							data.clickstream.push({x: boundaryLocation.x, y: boundaryLocation.y, t: t, action: "gestureSuspend"});
+							data.lastLocation = location;
+							data.drawState = "suspend";
+						}
+					} else {
+						if (inBounds) {
+							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
+							context.beginPath();
+							context.moveTo(boundaryLocation.x, boundaryLocation.y);
+							data.clickstream.push({x: boundaryLocation.x, y: boundaryLocation.y, t: t, action: "gestureResume"});
+							data.lastLocation = location;
+							data.drawState = "draw";
+						} else {
+							data.lastLocation = location;
+						}
 					}
 				});
 
 				$(document).bind("mouseup.signaturePanel touchend.signaturePanel touchcancel.signaturePanel", function (event) {
-					if (data.drawing) {
+					if (data.drawState !== "none") {
 						event.preventDefault();
 						context.closePath();
-						data.drawing = false;
+						data.drawState = "none";
 					}
 				});
 
@@ -176,7 +231,7 @@
 
 		drawClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
-				var canvas, context, i, inGesture;
+				var canvas, context, i, inPath;
 
 				canvas = this;
 				context = canvas.getContext("2d");
@@ -191,21 +246,35 @@
 				context.lineJoin = "round";
 				context.fillStyle = "none";
 
-				inGesture = false;
+				inPath = false;
 				for (i = 0; i < signatureData.clickstream.length; i++) {
-					if (signatureData.clickstream[i].action === "gestureStart") {
-						if (inGesture) {
+					switch (signatureData.clickstream[i].action) {
+					case "gestureResume":
+						// Same as gestureStart
+					case "gestureStart":
+						if (inPath) {
 							context.stroke();
 							context.closePath();
 						}
 						context.beginPath();
 						context.moveTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
-						inGesture = true;
-					} else if ((signatureData.clickstream[i].action === "gestureContinue") && inGesture) {
-						context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+						inPath = true;
+						break;
+					case "gestureContinue":
+						if (inPath) {
+							context.lineTo(signatureData.clickstream[i].x, signatureData.clickstream[i].y);
+						}
+						break;
+					case "gestureSuspend":
+						if (inPath) {
+							context.stroke();
+							context.closePath();
+							inPath = false;
+						}
+						break;
 					}
 				}
-				if (inGesture) {
+				if (inPath) {
 					context.stroke();
 					context.closePath();
 				}
