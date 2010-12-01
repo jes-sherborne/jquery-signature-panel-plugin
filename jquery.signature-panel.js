@@ -47,8 +47,111 @@
 
 			return {x: x, y: y};
 		},
-		calculateBoundaryCrossing: function(location, data) {
-			return location;
+		calculateBoundaryCrossing: function (location, data) {
+			var intersect, returnValue, found;
+
+			returnValue = {};
+			returnValue.x = location.x;
+			returnValue.y = location.y;
+
+			found = false;
+
+			if (!found) {
+				intersect = internal.computeLineIntersection(
+						0, 0, data.canvasWidth, 0,
+						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
+
+				if (intersect.status === "intersect") {
+					returnValue.x = intersect.x;
+					returnValue.y = intersect.y;
+					found = true;
+				} else if (intersect.status === "collinear") {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				intersect = internal.computeLineIntersection(
+						0, 0, 0, data.canvasHeight,
+						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
+
+				if (intersect.status === "intersect") {
+					returnValue.x = intersect.x;
+					returnValue.y = intersect.y;
+					found = true;
+				} else if (intersect.status === "collinear") {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				intersect = internal.computeLineIntersection(
+						0, data.canvasHeight, data.canvasWidth, data.canvasHeight,
+						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
+
+				if (intersect.status === "intersect") {
+					returnValue.x = intersect.x;
+					returnValue.y = intersect.y;
+					found = true;
+				} else if (intersect.status === "collinear") {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				intersect = internal.computeLineIntersection(
+						data.canvasWidth, 0, data.canvasWidth, data.canvasHeight,
+						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
+
+				if (intersect.status === "intersect") {
+					returnValue.x = intersect.x;
+					returnValue.y = intersect.y;
+					found = true;
+				} else if (intersect.status === "collinear") {
+					found = true;
+				}
+			}
+
+			// Make sure returned value is within bounds (correcting floating point error)
+
+			if (returnValue.x < 0) {
+				returnValue.x = 0;
+			} else if (returnValue.x > data.canvasWidth) {
+				returnValue.x = data.canvasWidth;
+			}
+			if (returnValue.y < 0) {
+				returnValue.y = 0;
+			} else if (returnValue.y > data.canvasHeight) {
+				returnValue.y = data.canvasHeight;
+			}
+
+			return returnValue;
+		},
+		computeLineIntersection: function (x1, y1, x2, y2, x3, y3, x4, y4) {
+			// Implementation follows http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/
+
+			var n1, n2, d, r1, r2;
+
+			n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
+			n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
+			d = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
+
+			if (d === 0.0) {
+				if ((n1 === 0.0) && (n2 === 0.0)) {
+					return {status: "collinear", x: null, y: null};
+				} else {
+					return {status: "disjoint", x: null, y: null};
+				}
+			} else {
+				r1 = n1/d;
+				r2 = n2/d;
+
+				if ((r1 >= 0) && (r1 <= 1) && (r2 >= 0) && (r2 <= 1)) {
+					return {status: "intersect", x: x1 + r1 * (x2 - x1), y: y1 + r1 * (y2 - y1)};
+				} else {
+					return {status: "disjoint", x: null, y: null};
+				}
+			}
 		}
 	};
 

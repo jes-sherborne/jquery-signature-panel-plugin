@@ -6,7 +6,7 @@
     <script type="text/javascript" src="jquery.signature-panel.js"></script>
 
     <script type="text/javascript">
-
+        
         function signatureOK(signatureData) {
             $("#signature-target").signaturePanel("drawClickstreamToCanvas", signatureData);
         }
@@ -23,6 +23,6 @@
     <h2>Write your signature below</h2>
     <div id="signature-panel-1" style="width: 500px; height: 300px; border: 1px solid gray"></div>
     <h3>Here's what you signed</h3>
-    <canvas id="signature-target" height="260px" width="500px"></canvas>
+    <canvas id="signature-target" height="260px" width="500px" style="border: 1px solid gray;" ></canvas>
 </body>
 </html>
