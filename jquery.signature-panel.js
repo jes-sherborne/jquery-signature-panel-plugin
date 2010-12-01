@@ -14,7 +14,6 @@
 		getPanelHtml : function (settings, $parentDiv){
 			var r = [];
 
-			r.push("<canvas height=\"" + ($parentDiv.height() - 40) + "px\" width=\"" + ($parentDiv.width() + 0.0) + "px\"></canvas>");
 			r.push("<div style=\"height: 40px; padding: 2px 6px 2px 6px;\">");
 				r.push("<a href=\"#\" class=\"signature-panel-clear\">" + settings.clearCaption + "</a>");
 				r.push("<div style=\"float: right\">");
@@ -35,14 +34,32 @@
 			data.clearSignature();
 		},
 		processEventLocation : function(event, canvas) {
-			var x, y;
+			var x, y, offsetTop, offsetLeft, offsetObject;
+			
+			if ($.browser.msie && parseInt($.browser.version) === 6) {
+				// IE6 doesn't calculate the offset properties correctly
+				offsetObject = canvas;
+				offsetLeft = 0;
+				offsetTop = 0;
+				
+				if (offsetObject.offsetParent) {
+					do {
+						offsetLeft += offsetObject.offsetLeft;
+						offsetTop += offsetObject.offsetTop;
+						offsetObject = offsetObject.offsetParent;
+					} while (offsetObject);
+				}
+			} else {
+				offsetTop = canvas.offsetTop;
+				offsetLeft = canvas.offsetLeft;
+			}
 
 			if (event.originalEvent.touches) {
-				x = event.originalEvent.touches[0].pageX - canvas.offsetLeft;
-				y = event.originalEvent.touches[0].pageY - canvas.offsetTop;
+				x = event.originalEvent.touches[0].pageX - offsetLeft;
+				y = event.originalEvent.touches[0].pageY - offsetTop;
 			} else {
-				x = event.pageX - canvas.offsetLeft;
-				y = event.pageY - canvas.offsetTop;
+				x = event.pageX - offsetLeft;
+				y = event.pageY - offsetTop;
 			}
 
 			return {x: x, y: y};
@@ -167,12 +184,12 @@
 				if (! $this.data("signaturePanel")) {
 					$this.data("signaturePanel", {
 						clickstream: [],
-						startTime: 0,
 						drawState: "none",
 						canvasHeight: 0,
 						canvasWidth: 0,
 						settings: {},
 						lastLocation: {},
+						emulatedCanvas: false,
 						getSignatureData: function () {
 							return {
 								clickstream: this.clickstream,
@@ -198,11 +215,23 @@
 
 				// Create user interface elements
 				$this.empty();
+				
+				canvas = document.createElement('canvas');
+				$this.append(canvas);
+				
+				canvas.setAttribute("width", $this.width());
+				canvas.setAttribute("height", $this.height() - 40);
+				
+				if (typeof G_vmlCanvasManager !== "undefined") {
+					// initialize IE Canvas emulation
+					canvas = G_vmlCanvasManager.initElement(canvas);
+					data.emulatedCanvas = true;
+				}
+				
+				$canvas = $(canvas);
 				$this.append(internal.getPanelHtml(data.settings, $this));
-
-				$canvas = $this.find("canvas");
-				canvas = $canvas[0];
-				context = $canvas[0].getContext('2d');
+				
+				context = canvas.getContext('2d');
 
 				data.canvasHeight = canvas.height;
 				data.canvasWidth = canvas.width;
@@ -238,10 +267,9 @@
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
 					var location, t;
 
-					t= (new Date).getTime - data.startTime;
+					t = (new Date).getTime();
 					event.preventDefault();
 					location = internal.processEventLocation(event, $canvas[0]);
-					data.startTime = t;
 					data.drawState = "draw";
 					if (!data.havePath) {
 						context.beginPath();
@@ -255,7 +283,7 @@
 				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
 					var location, t, inBounds, boundaryLocation, lastLocationInBounds;
 
-					t= (new Date).getTime - data.startTime;
+					t = (new Date).getTime();
 
 					if ((data.drawState === "draw") || (data.drawState === "suspend")) {
 						event.preventDefault();
@@ -284,14 +312,22 @@
 					if (lastLocationInBounds) {
 						if (inBounds) {
 							context.lineTo(location.x, location.y);
-							context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
+							if (!data.emulatedCanvas) {
+								// The canvas emulation tends to jitter between drawing calls
+								// This makes the effect less pronounced
+								context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
+							}
 							context.stroke();
 							data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureContinue"});
 							data.lastLocation = location;
 						} else {
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
 							context.lineTo(boundaryLocation.x, boundaryLocation.y);
-							context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
+							if (!data.emulatedCanvas) {
+								// The canvas emulation tends to jitter between drawing calls
+								// This makes the effect less pronounced
+								context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
+							}
 							context.stroke();
 							data.clickstream.push({x: boundaryLocation.x, y: boundaryLocation.y, t: t, action: "gestureSuspend"});
 							data.lastLocation = location;
@@ -339,23 +375,24 @@
 
 		drawClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
-				var canvas, context, i, inPath, scalingFactorX, scalingFactorY, scalingFactor, x, y;
-
+				var canvas, context, i, inPath, scalingFactorX, scalingFactorY, scalingFactor, x, y, $canvas;
+			
 				canvas = this;
 				context = canvas.getContext("2d");
+				$canvas = $(canvas);
 
 				internal.clearHtmlCanvas(canvas, context);
-				canvas.width = canvas.width;
+				//canvas.width = canvas.width;
 
-				if (canvas.width <= 0) {
+				if ($canvas.width() <= 0) {
 					scalingFactorX = 0;
 				} else {
-					scalingFactorX = canvas.width / signatureData.canvasWidth;
+					scalingFactorX = $canvas.width() / signatureData.canvasWidth;
 				}
-				if (canvas.height <= 0) {
+				if ($canvas.height() <= 0) {
 					scalingFactorY = 0;
 				} else {
-					scalingFactorY = canvas.height / signatureData.canvasHeight;
+					scalingFactorY = $canvas.height() / signatureData.canvasHeight;
 				}
 				scalingFactor = Math.min(scalingFactorX, scalingFactorY);
 
@@ -387,6 +424,7 @@
 					}
 				}
 				context.stroke();
+				context.closePath();
 			})
 		}
 
