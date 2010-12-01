@@ -183,6 +183,7 @@
 						clearSignature: function () {
 							this.clickstream = [];
 							this.drawState = "none";
+							this.havePath = false;
 						}
 					});
 				}
@@ -240,7 +241,10 @@
 					location = internal.processEventLocation(event, $canvas[0]);
 					data.startTime = t;
 					data.drawState = "draw";
-					context.beginPath();
+					if (!data.havePath) {
+						context.beginPath();
+						data.havePath = true;
+					}
 					context.moveTo(location.x, location.y);
 					data.lastLocation = location;
 					data.clickstream.push({x: location.x, y: location.y, t: 0, action: "gestureStart"});
@@ -278,14 +282,15 @@
 					if (lastLocationInBounds) {
 						if (inBounds) {
 							context.lineTo(location.x, location.y);
+							context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
 							context.stroke();
 							data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureContinue"});
 							data.lastLocation = location;
 						} else {
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
 							context.lineTo(boundaryLocation.x, boundaryLocation.y);
+							context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
 							context.stroke();
-							context.closePath();
 							data.clickstream.push({x: boundaryLocation.x, y: boundaryLocation.y, t: t, action: "gestureSuspend"});
 							data.lastLocation = location;
 							data.drawState = "suspend";
@@ -293,7 +298,6 @@
 					} else {
 						if (inBounds) {
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
-							context.beginPath();
 							context.moveTo(boundaryLocation.x, boundaryLocation.y);
 							data.clickstream.push({x: boundaryLocation.x, y: boundaryLocation.y, t: t, action: "gestureResume"});
 							data.lastLocation = location;
@@ -307,7 +311,6 @@
 				$(document).bind("mouseup.signaturePanel touchend.signaturePanel touchcancel.signaturePanel", function (event) {
 					if (data.drawState !== "none") {
 						event.preventDefault();
-						context.closePath();
 						data.drawState = "none";
 					}
 				});
