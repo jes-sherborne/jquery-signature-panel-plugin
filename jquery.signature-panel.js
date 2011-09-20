@@ -1,25 +1,35 @@
 (function($) {
 
 	var defaults = {
-		"penColor": "#191970",
-		"penWidth": 3.0,
-		"clearCaption": "Clear",
-		"okCaption": "OK",
-		"cancelCaption": "Cancel",
-		"okFunction": null,
-		"cancelFunction": null
+		penColor: "#191970",
+		penWidth: 3.0,
+		controlBarHeight: 30,
+		clearCaption: "Clear",
+		clearElementType: "link",
+		okCaption: "OK",
+		okElementType: "button",
+		okCallback: null,
+		cancelCaption: "Cancel",
+		cancelElementType: "link",
+		cancelCallback: null
 	};
 
 	var internal = {
 		getPanelHtml : function (settings, $parentDiv){
-			var r = [];
+			var r = [], uiHtmlSnippet;
 
-			r.push("<div style=\"height: 40px; padding: 2px 6px 2px 6px;\">");
-				r.push("<a href=\"#\" class=\"signature-panel-clear\">" + settings.clearCaption + "</a>");
-				r.push("<div style=\"float: right\">");
-					r.push("<a href=\"#\" class=\"signature-panel-cancel\">" + settings.cancelCaption + "</a>");
-					r.push("<button type=\"button\" class=\"signature-panel-ok\">" + settings.okCaption + "</a>");
-				r.push("</div>");
+			uiHtmlSnippet = function(elementType, elementClass, elementCaption) {
+				if (elementType === "button") {
+					return "<button type=\"button\" class=\"" + elementClass + "\">" + elementCaption + "</button>"
+				} else {
+					return "<a href=\"#\" class=\"" + elementClass + "\">" + elementCaption + "</a>"
+				}
+			};
+
+			r.push("<div class=\"signature-panel-control\" style=\"position: absolute; top: " + ($parentDiv.height() - settings.controlBarHeight) + "px; height: " + settings.controlBarHeight + "px; width: " + $parentDiv.css("width") + ";\">");
+				r.push(uiHtmlSnippet(settings.clearElementType, "signature-panel-clear", settings.clearCaption));
+				r.push(uiHtmlSnippet(settings.okElementType, "signature-panel-ok", settings.okCaption));
+				r.push(uiHtmlSnippet(settings.cancelElementType, "signature-panel-cancel", settings.cancelCaption));
 			r.push("</div>");
 			return r.join("\n");
 		}, 
@@ -33,12 +43,12 @@
 			internal.clearHtmlCanvas(canvas, context);
 			data.clearSignature();
 		},
-		processEventLocation : function(event, canvas) {
+		processEventLocation : function(event, $canvas) {
 			var x, y, offsetTop, offsetLeft, offsetObject;
 			
 			if ($.browser.msie && parseInt($.browser.version) === 6) {
 				// IE6 doesn't calculate the offset properties correctly
-				offsetObject = canvas;
+				offsetObject = $canvas[0];
 				offsetLeft = 0;
 				offsetTop = 0;
 				
@@ -50,8 +60,8 @@
 					} while (offsetObject);
 				}
 			} else {
-				offsetTop = canvas.offsetTop;
-				offsetLeft = canvas.offsetLeft;
+				offsetTop = $canvas.offset().top;
+				offsetLeft = $canvas.offset().left;
 			}
 
 			if (event.originalEvent.touches) {
@@ -176,7 +186,7 @@
 		init : function(options) {
 
 			return this.each(function() {
-				var $this, data, $canvas, canvas, context;
+				var $this, data, $canvas, canvas, context, $wrapper;
 
 				$this = $(this);
 
@@ -187,6 +197,7 @@
 						drawState: "none",
 						canvasHeight: 0,
 						canvasWidth: 0,
+						firstTime: null,
 						settings: {},
 						lastLocation: {},
 						emulatedCanvas: false,
@@ -215,12 +226,17 @@
 
 				// Create user interface elements
 				$this.empty();
-				
+
+				$this.append("<div class=\"signature-panel-wrapper\" style=\"position: relative; height: " + $this.height() + "px; width: " + $this.width() + "px;\"></div>");
+				$wrapper = $this.find(".signature-panel-wrapper")
+
+				// We're using native DOM methods to work around some quirks with ExplorerCanvas when dynamically
+				// creating canvas elements.
 				canvas = document.createElement('canvas');
-				$this.append(canvas);
+				$wrapper.append(canvas);
 				
 				canvas.setAttribute("width", $this.width());
-				canvas.setAttribute("height", $this.height() - 40);
+				canvas.setAttribute("height", $this.height() - data.settings.controlBarHeight);
 				
 				if (typeof G_vmlCanvasManager !== "undefined") {
 					// initialize IE Canvas emulation
@@ -229,7 +245,7 @@
 				}
 				
 				$canvas = $(canvas);
-				$this.append(internal.getPanelHtml(data.settings, $this));
+				$wrapper.append(internal.getPanelHtml(data.settings, $this));
 				
 				context = canvas.getContext('2d');
 
@@ -244,22 +260,22 @@
 
 				// Attach event handlers
 
-				$this.find("a.signature-panel-clear").bind("click.signaturePanel", function () {
+				$this.find(".signature-panel-clear").bind("click.signaturePanel", function () {
 					internal.clearSignature($canvas[0], context, data);
 					return false;
 				});
 
-				$this.find("a.signature-panel-cancel").bind("click.signaturePanel", function () {
+				$this.find(".signature-panel-cancel").bind("click.signaturePanel", function () {
 					internal.clearSignature($canvas[0], context, data);
-					if (data.settings.cancelFunction) {
-						data.settings.cancelFunction();
+					if (data.settings.cancelCallback) {
+						data.settings.cancelCallback();
 					}
 					return false;
 				});
 
-				$this.find("button.signature-panel-ok").bind("click.signaturePanel", function () {
-					if (data.settings.okFunction) {
-						data.settings.okFunction(data.getSignatureData());
+				$this.find(".signature-panel-ok").bind("click.signaturePanel", function () {
+					if (data.settings.okCallback) {
+						data.settings.okCallback(data.getSignatureData());
 					}
 					return false;
 				});
@@ -268,8 +284,13 @@
 					var location, t;
 
 					t = (new Date).getTime();
+					if (!data.firstTime) {
+						data.firstTime = t;
+					}
+					t = t - data.firstTime;
+
 					event.preventDefault();
-					location = internal.processEventLocation(event, $canvas[0]);
+					location = internal.processEventLocation(event, $canvas);
 					data.drawState = "draw";
 					if (!data.havePath) {
 						context.beginPath();
@@ -277,7 +298,7 @@
 					}
 					context.moveTo(location.x, location.y);
 					data.lastLocation = location;
-					data.clickstream.push({x: location.x, y: location.y, t: 0, action: "gestureStart"});
+					data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureStart"});
 				});
 
 				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
@@ -287,8 +308,9 @@
 
 					if ((data.drawState === "draw") || (data.drawState === "suspend")) {
 						event.preventDefault();
-						location = internal.processEventLocation(event, $canvas[0]);
+						location = internal.processEventLocation(event, $canvas);
 						inBounds = !((location.x < 0) || (location.x > data.canvasWidth) || (location.y < 0) || (location.y > data.canvasHeight));
+						t = t - data.firstTime;
 					} else {
 						return;
 					}
@@ -318,7 +340,12 @@
 								context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
 							}
 							context.stroke();
-							data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureContinue"});
+							data.clickstream.push({
+								x: location.x,
+								y: location.y,
+								t: t,
+								action: "gestureContinue"
+							});
 							data.lastLocation = location;
 						} else {
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
@@ -329,7 +356,12 @@
 								context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
 							}
 							context.stroke();
-							data.clickstream.push({x: boundaryLocation.x, y: boundaryLocation.y, t: t, action: "gestureSuspend"});
+							data.clickstream.push({
+								x: boundaryLocation.x,
+								y: boundaryLocation.y,
+								t: t,
+								action: "gestureSuspend"
+							});
 							data.lastLocation = location;
 							data.drawState = "suspend";
 						}
@@ -337,7 +369,12 @@
 						if (inBounds) {
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
 							context.moveTo(boundaryLocation.x, boundaryLocation.y);
-							data.clickstream.push({x: boundaryLocation.x, y: boundaryLocation.y, t: t, action: "gestureResume"});
+							data.clickstream.push({
+								x: boundaryLocation.x,
+								y: boundaryLocation.y,
+								t: t,
+								action: "gestureResume"
+							});
 							data.lastLocation = location;
 							data.drawState = "draw";
 						} else {

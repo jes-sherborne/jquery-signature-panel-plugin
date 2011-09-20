@@ -8,20 +8,18 @@
     <link rel="stylesheet" type="text/css" href="jquery.signature-panel.css" />
 
     <script type="text/javascript">
-        
-        function signatureOK(signatureData) {
-            // Show the user the signature they've entered.
-            $("#signature-target").signaturePanel("drawClickstreamToCanvas", signatureData);
-        }
 
-        function signatureCancel() {
-            alert("The user clicked Cancel.");
+        function signatureOK(signatureData) {
+			alert("You clicked OK.")
         }
 
         $(document).ready(function() {
             $("#signature-panel-1").signaturePanel({
                 okCallback: signatureOK,
-                cancelCallback: signatureCancel
+                okElementType: "link",
+                cancelElementType: "link",
+                clearElementType: "link",
+                controlBarHeight: 42
             });
         });
 
@@ -31,8 +29,6 @@
 <body>
     <h1>Signature Panel Test</h1>
     <h2>Write your signature below</h2>
-    <div id="signature-panel-1" style="width: 500px; height: 300px; border: 10px solid gray"></div>
-    <h3>Here's what you signed</h3>
-    <canvas id="signature-target" height="100px" width="250px" style="border: 1px solid gray;" ></canvas>
+    <div class="signature-panel-ipad" id="signature-panel-1" style="width: 500px; height: 300px; border: 1px solid gray"></div>
 </body>
 </html>
