@@ -1,6 +1,8 @@
 # SignaturePanel
 
-A jquery-based panel to capture signatures. Compatible with iPad.
+SignaturePanel is a jQuery plugin that enables you to capture signatures and display them later. It works on the iPad, iPhone, and most common desktop browsers.
+
+SignaturePanel doesn't just capture how the signature appears. It also captures the timing of each gesture so that you have the information you need to replay the signature in real time. By capturing this information, it provides stronger evidence that the signature is genuine.
 
 ## Compatibility
 
@@ -17,12 +19,12 @@ SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are
 
 ## Getting Started
 
-The easiest way to get started is with a basic example. This example shows how to capture a signature and display it elsewhere. It also optionally loads ExplorerCanvas to so that it works in older versions of IE that don't support the HTML5 canvas.
+The easiest way to get started is with a basic example. This example shows how to capture a signature and display it elsewhere. It also optionally loads ExplorerCanvas so that it works in older versions of IE that don't support the HTML5 canvas.
 
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Signature Panel Test</title>
+        <title>SignaturePanel - Getting started</title>
         <!--[if lt IE 9]><script src="external/excanvas.js"></script><![endif]-->
         <script type="text/javascript" src="external/jquery-1.4.4.js"></script>
         <script type="text/javascript" src="jquery.signature-panel.js"></script>
@@ -50,10 +52,9 @@ The easiest way to get started is with a basic example. This example shows how t
 
     </head>
     <body>
-        <h1>Signature Panel Test</h1>
-        <h2>Write your signature below</h2>
+        <h1>Write your signature below</h1>
         <div id="signature-panel-1" style="width: 500px; height: 300px; border: 10px solid gray"></div>
-        <h3>Here's what you signed</h3>
+        <h2>Here's what you signed</h2>
         <canvas id="signature-target" height="100px" width="250px" style="border: 1px solid gray;" ></canvas>
     </body>
     </html>
@@ -67,7 +68,7 @@ To use the minimal style, all you need to do is include `jquery.signature-panel.
 Using the iPad style is also straightforward:
 
 * Include `jquery.signature-panel.css` in your header
-* Add the class `signature-panel-ipad` to your signature panel `div`
+* Add the class `signature-panel-ipad` to your SignaturePanel `div`
 * When initializing the SignaturePanel, set all the `ElementType` properties to `"link"` and set `controlBarHeight: 42`
 
 Here's an example of how to use the iPad style:
@@ -75,7 +76,7 @@ Here's an example of how to use the iPad style:
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Signature Panel Test</title>
+        <title>SignaturePanel Test</title>
         <!--[if lt IE 9]><script src="external/excanvas.js"></script><![endif]-->
         <script type="text/javascript" src="external/jquery-1.4.4.js"></script>
         <script type="text/javascript" src="jquery.signature-panel.js"></script>
@@ -101,8 +102,7 @@ Here's an example of how to use the iPad style:
 
     </head>
     <body>
-        <h1>Signature Panel Test</h1>
-        <h2>Write your signature below</h2>
+        <h1>Write your signature below</h1>
         <div class="signature-panel-ipad" id="signature-panel-1" style="width: 500px; height: 300px; border: 1px solid gray"></div>
     </body>
     </html>
