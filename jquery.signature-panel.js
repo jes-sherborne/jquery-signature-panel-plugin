@@ -407,6 +407,7 @@
 
 				data.signaturePanel.remove();
 				$this.removeData("signaturePanel");
+				$this.empty();
 			})
 		},
 

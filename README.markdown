@@ -6,15 +6,18 @@ A jquery-based panel to capture signatures. Compatible with iPad.
 
 SignaturePanel has been tested in the following browsers:
 
-* IE 6, 7, 8, 9
+* IE 6, 7, 8 (requires [ExplorerCanvas](http://code.google.com/p/explorercanvas/))
+* IE 9
 * Firefox 3.6+
 * Safari (OSX)
 * Safari (iOS 4+)
 * Chrome
 
+SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are likely to work as well but have not been tested.
+
 ## Getting Started
 
-The easiest way to get started is by example. This page shows how to capture a signature and display it elsewhere. It also optionally loads ExplorerCanvas to so that it works in older versions of IE that don't support the HTML5 canvas.
+The easiest way to get started is with a basic example. This example shows how to capture a signature and display it elsewhere. It also optionally loads ExplorerCanvas to so that it works in older versions of IE that don't support the HTML5 canvas.
 
     <!DOCTYPE html>
     <html>
@@ -123,6 +126,10 @@ Here's the basic structure of the HTML that SignaturePanel generates:
             </div>
         </div>
     </div>
+
+## Dynamically creating and destroying SignaturePanel
+
+Signature is designed to be well-behaved when it is dynamically added and removed from a page. To ensure that SignaturePanel releases its event handlers and cleans up resources, be sure to call `destroy` when you remove it.
 
 ## Configurable options
 
