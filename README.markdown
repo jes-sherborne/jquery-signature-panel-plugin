@@ -21,6 +21,8 @@ SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are
 
 The easiest way to get started is with a basic example. This example shows how to capture a signature and display it elsewhere. It also optionally loads ExplorerCanvas so that it works in older versions of IE that don't support the HTML5 canvas.
 
+You can find this code at /examples/signature-panel-start.html
+
     <!DOCTYPE html>
     <html>
     <head>
@@ -75,7 +77,7 @@ Using the iPad style is also straightforward:
 * Add the class `signature-panel-ipad` to your SignaturePanel `div`
 * When initializing the SignaturePanel, set all the `ElementType` properties to `"link"` and set `controlBarHeight: 42`
 
-Here's an example of how to use the iPad style:
+Here's an example of how to use the iPad style (you can find this code at /examples/signature-panel-styling.html):
 
     <!DOCTYPE html>
     <html>
