@@ -24,17 +24,17 @@ The easiest way to get started is with a basic example. This example shows how t
     <!DOCTYPE html>
     <html>
     <head>
-        <title>SignaturePanel - Getting started</title>
-        <!--[if lt IE 9]><script src="external/excanvas.js"></script><![endif]-->
-        <script type="text/javascript" src="external/jquery-1.4.4.js"></script>
-        <script type="text/javascript" src="jquery.signature-panel.js"></script>
-        <link rel="stylesheet" type="text/css" href="jquery.signature-panel.css" />
+        <title>SignaturePanel - Getting Started</title>
+        <!--[if lt IE 9]><script src="../external/excanvas.compiled.js"></script><![endif]-->
+        <script type="text/javascript" src="../external/jquery-1.4.4.js"></script>
+        <script type="text/javascript" src="../jquery.signature-panel.js"></script>
+        <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
 
         <script type="text/javascript">
 
             function signatureOK(signatureData) {
                 // Show the user the signature they've entered.
-                $("#signature-target").signaturePanel("drawClickstreamToCanvas", signatureData);
+                $("#my-target").signaturePanel("drawClickstreamToCanvas", signatureData);
             }
 
             function signatureCancel() {
@@ -42,7 +42,7 @@ The easiest way to get started is with a basic example. This example shows how t
             }
 
             $(document).ready(function() {
-                $("#signature-panel-1").signaturePanel({
+                $("#my-panel").signaturePanel({
                     okCallback: signatureOK,
                     cancelCallback: signatureCancel
                 });
@@ -52,18 +52,18 @@ The easiest way to get started is with a basic example. This example shows how t
 
     </head>
     <body>
-        <h1>Write your signature below</h1>
-        <div id="signature-panel-1" style="width: 500px; height: 300px; border: 10px solid gray"></div>
+        <h1>Sign your name below</h1>
+        <div id="my-panel" style="width: 500px; height: 300px; border: 10px solid gray"></div>
         <h2>Here's what you signed</h2>
-        <canvas id="signature-target" height="100px" width="250px" style="border: 1px solid gray;" ></canvas>
+        <canvas id="my-target" height="100px" width="250px" style="border: 1px solid gray;" ></canvas>
     </body>
     </html>
-    
+
 ## Using the built-in styles
 
 SignaturePanel comes with two built-in styles: a minimal style that inherits most attributes from the page around it and an iPad style that follows the iPad's visual conventions
 
-To use the minimal style, all you need to do is include `jquery.signature-panel.css` in your header. This is also a good starting point to use as the basis for your own styles.
+To use the minimal style, all you need to do is include `jquery.signature-panel.css` in your header. This is also a good starting point to use as the basis for your own styles. All styling is optional; SignaurePanel does not depend on the presence of its css file, so you don't need to include it if you're creating your own styles.
 
 Using the iPad style is also straightforward:
 
@@ -76,11 +76,11 @@ Here's an example of how to use the iPad style:
     <!DOCTYPE html>
     <html>
     <head>
-        <title>SignaturePanel Test</title>
-        <!--[if lt IE 9]><script src="external/excanvas.js"></script><![endif]-->
-        <script type="text/javascript" src="external/jquery-1.4.4.js"></script>
-        <script type="text/javascript" src="jquery.signature-panel.js"></script>
-        <link rel="stylesheet" type="text/css" href="jquery.signature-panel.css" />
+        <title>SignaturePanel - iPad Styling</title>
+        <!--[if lt IE 9]><script src="../external/excanvas.compiled.js"></script><![endif]-->
+        <script type="text/javascript" src="../external/jquery-1.4.4.js"></script>
+        <script type="text/javascript" src="../jquery.signature-panel.js"></script>
+        <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
 
         <script type="text/javascript">
 
@@ -89,7 +89,7 @@ Here's an example of how to use the iPad style:
             }
 
             $(document).ready(function() {
-                $("#signature-panel-1").signaturePanel({
+                $("#my-panel").signaturePanel({
                     okCallback: signatureOK,
                     okElementType: "link",
                     cancelElementType: "link",
@@ -102,8 +102,9 @@ Here's an example of how to use the iPad style:
 
     </head>
     <body>
-        <h1>Write your signature below</h1>
-        <div class="signature-panel-ipad" id="signature-panel-1" style="width: 500px; height: 300px; border: 1px solid gray"></div>
+        <h1>Signature Panel Test</h1>
+        <h2>Write your signature below</h2>
+        <div class="signature-panel-ipad" id="my-panel" style="width: 500px; height: 300px; border: 1px solid gray"></div>
     </body>
     </html>
 

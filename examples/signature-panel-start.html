@@ -11,7 +11,7 @@
         
         function signatureOK(signatureData) {
             // Show the user the signature they've entered.
-            $("#signature-target").signaturePanel("drawClickstreamToCanvas", signatureData);
+            $("#my-target").signaturePanel("drawClickstreamToCanvas", signatureData);
         }
 
         function signatureCancel() {
@@ -19,7 +19,7 @@
         }
 
         $(document).ready(function() {
-            $("#signature-panel-1").signaturePanel({
+            $("#my-panel").signaturePanel({
                 okCallback: signatureOK,
                 cancelCallback: signatureCancel
             });
@@ -30,8 +30,8 @@
 </head>
 <body>
     <h1>Sign your name below</h1>
-    <div id="signature-panel-1" style="width: 500px; height: 300px; border: 10px solid gray"></div>
+    <div id="my-panel" style="width: 500px; height: 300px; border: 10px solid gray"></div>
     <h2>Here's what you signed</h2>
-    <canvas id="signature-target" height="100px" width="250px" style="border: 1px solid gray;" ></canvas>
+    <canvas id="my-target" height="100px" width="250px" style="border: 1px solid gray;" ></canvas>
 </body>
 </html>
