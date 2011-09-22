@@ -59,9 +59,9 @@ The easiest way to get started is with a basic example. This example shows how t
     </body>
     </html>
 
-## Using the built-in styles
+## Styling SignaturePanel
 
-SignaturePanel comes with two built-in styles: a minimal style that inherits most attributes from the page around it and an iPad style that follows the iPad's visual conventions
+SignaturePanel comes with two built-in styles: a minimal style that inherits most attributes from the page around it and an iPad style that follows the iPad's visual conventions. SignaturePanel uses minimal markup for its controls so that it is easy to add your own styles to integrate it into your application.
 
 ### Using the minimal style
 
@@ -112,9 +112,9 @@ Here's an example of how to use the iPad style:
     </body>
     </html>
 
-## Using your own styles
+### Using your own styles
 
-SignaturePanel uses minimal markup for its controls so that it is easy to style it to integrate into your application. The control's settings determine the height of the control bar at the bottom, whether each control is a link or a button, and what their captions should be. By default, the control bar is 30 pixels high, OK is a button, and the other controls are links.
+The visual display of the control is governed by a combination of settings and CSS. The control's settings determine the height of the control bar at the bottom, whether each control is a link or a button, and what their captions should be. By default, the control bar is 30 pixels high, OK is a button, and the other controls are links. All other styling is controlled by CSS.
 
 Each element has a class applied so that it's easy to override with CSS. The easiest way to see how everything works is to look at the iPad style in `jquery.signature-panel.css`, which illustrates most of the elements you're likely to need.
 
@@ -169,4 +169,3 @@ SignaturePanel produces a single JavaScript object that provides all the informa
         * _gestureContinue_: the user has added a point to the gesture. In other words, the user is actively drawing
         * _gestureSuspend_: the user is actively drawing, but they have gone outside the boundary of the canvas. This gives the linearly interpolated position where the boundary crossing occurred
         * _gestureResume_: the user has continued actively drawing and has re-entered the canvas. This gives the linearly interpolated position where the boundary crossing occurred. Since the user may stop drawing while outside the canvas, you are not guaranteed to get a gestureResume after every gestureSuspend.
-
