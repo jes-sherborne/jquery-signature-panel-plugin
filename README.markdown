@@ -63,7 +63,11 @@ The easiest way to get started is with a basic example. This example shows how t
 
 SignaturePanel comes with two built-in styles: a minimal style that inherits most attributes from the page around it and an iPad style that follows the iPad's visual conventions
 
+### Using the minimal style
+
 To use the minimal style, all you need to do is include `jquery.signature-panel.css` in your header. This is also a good starting point to use as the basis for your own styles. All styling is optional; SignaurePanel does not depend on the presence of its css file, so you don't need to include it if you're creating your own styles.
+
+### Using the iPad style
 
 Using the iPad style is also straightforward:
 
