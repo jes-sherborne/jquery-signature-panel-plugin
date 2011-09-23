@@ -220,6 +220,7 @@
 							this.clickstream = [];
 							this.drawState = "none";
 							this.havePath = false;
+							this.firstTime = null;
 						}
 					});
 				}
