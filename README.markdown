@@ -28,7 +28,7 @@ You can find this code at /examples/signature-panel-start.html
     <head>
         <title>SignaturePanel - Getting Started</title>
         <!--[if lt IE 9]><script src="../external/excanvas.compiled.js"></script><![endif]-->
-        <script type="text/javascript" src="../external/jquery-1.4.4.js"></script>
+        <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
         <script type="text/javascript" src="../jquery.signature-panel.js"></script>
         <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
 
@@ -57,7 +57,7 @@ You can find this code at /examples/signature-panel-start.html
         <h1>Sign your name below</h1>
         <div id="my-panel" style="width: 500px; height: 300px; border: 10px solid gray"></div>
         <h2>Here's what you signed</h2>
-        <canvas id="my-target" height="100px" width="250px" style="border: 1px solid gray;" ></canvas>
+        <canvas id="my-target" height="100" width="250" style="border: 1px solid gray;" ></canvas>
     </body>
     </html>
 
@@ -84,7 +84,7 @@ Here's an example of how to use the iPad style (you can find this code at /examp
     <head>
         <title>SignaturePanel - iPad Styling</title>
         <!--[if lt IE 9]><script src="../external/excanvas.compiled.js"></script><![endif]-->
-        <script type="text/javascript" src="../external/jquery-1.4.4.js"></script>
+        <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
         <script type="text/javascript" src="../jquery.signature-panel.js"></script>
         <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
 
