@@ -14,6 +14,10 @@
 		cancelCallback: null
 	};
 
+	var constants = {
+		dataVersion: 1
+	};
+
 	var internal = {
 		getPanelHtml : function (settings, $parentDiv){
 			var r = [], uiHtmlSnippet;
@@ -193,6 +197,7 @@
 				// Attach data storage to this object
 				if (! $this.data("signaturePanel")) {
 					$this.data("signaturePanel", {
+						dataVersion: constants.dataVersion,
 						clickstream: [],
 						drawState: "none",
 						canvasHeight: 0,
@@ -203,6 +208,7 @@
 						emulatedCanvas: false,
 						getSignatureData: function () {
 							return {
+								dataVersion: this.dataVersion,
 								clickstream: this.clickstream,
 								penColor: this.settings.penColor,
 								penWidth: this.settings.penWidth,

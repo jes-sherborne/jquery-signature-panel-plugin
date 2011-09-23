@@ -158,6 +158,7 @@ SignaturePanel has a handful of options to configure its appearance and behavior
 
 SignaturePanel produces a single JavaScript object that provides all the information necessary to reproduce the signature
 
+* __dataVersion__ (integer): version of SignatureData. This will be updated whenever the format of this object changes.
 * __canvasWidth__ (float): initial width of the SignaturePanel drawing canvas in pixels
 * __canvasHeight__ (float): initial height of the SignaturePanel drawing canvas in pixels
 * __penColor__ (string): HTML color value of the pen
