@@ -79,67 +79,31 @@
 			return {x: x, y: y};
 		},
 		calculateBoundaryCrossing: function (location, data) {
-			var intersect, returnValue, found;
+			var intersect, returnValue, borders, i;
 
-			returnValue = {};
-			returnValue.x = location.x;
-			returnValue.y = location.y;
+			returnValue = {
+				x: location.x,
+				y: location.y
+			};
 
-			found = false;
+			borders = [
+				[0, 0, data.canvasWidth, 0],
+				[0, 0, 0, data.canvasHeight],
+				[0, data.canvasHeight, data.canvasWidth, data.canvasHeight],
+				[data.canvasWidth, 0, data.canvasWidth, data.canvasHeight]
+			];
 
-			if (!found) {
+			for (i = 0; i < 4; i++) {
 				intersect = internal.computeLineIntersection(
-						0, 0, data.canvasWidth, 0,
+						borders[i][0], borders[i][1], borders[i][2], borders[i][3],
 						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
 
 				if (intersect.status === "intersect") {
 					returnValue.x = intersect.x;
 					returnValue.y = intersect.y;
-					found = true;
+					break;
 				} else if (intersect.status === "collinear") {
-					found = true;
-				}
-			}
-
-			if (!found) {
-				intersect = internal.computeLineIntersection(
-						0, 0, 0, data.canvasHeight,
-						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
-
-				if (intersect.status === "intersect") {
-					returnValue.x = intersect.x;
-					returnValue.y = intersect.y;
-					found = true;
-				} else if (intersect.status === "collinear") {
-					found = true;
-				}
-			}
-
-			if (!found) {
-				intersect = internal.computeLineIntersection(
-						0, data.canvasHeight, data.canvasWidth, data.canvasHeight,
-						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
-
-				if (intersect.status === "intersect") {
-					returnValue.x = intersect.x;
-					returnValue.y = intersect.y;
-					found = true;
-				} else if (intersect.status === "collinear") {
-					found = true;
-				}
-			}
-
-			if (!found) {
-				intersect = internal.computeLineIntersection(
-						data.canvasWidth, 0, data.canvasWidth, data.canvasHeight,
-						data.lastLocation.x, data.lastLocation.y, location.x, location.y);
-
-				if (intersect.status === "intersect") {
-					returnValue.x = intersect.x;
-					returnValue.y = intersect.y;
-					found = true;
-				} else if (intersect.status === "collinear") {
-					found = true;
+					break;
 				}
 			}
 
