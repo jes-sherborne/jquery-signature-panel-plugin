@@ -27,7 +27,7 @@ You can find this code at /examples/signature-panel-start.html
     <html>
     <head>
         <title>SignaturePanel - Getting Started</title>
-        <!--[if lt IE 9]><script src="../external/excanvas.compiled.js"></script><![endif]-->
+        <!--[if lt IE 9]><script type="text/javascript" src="../external/excanvas.compiled.js"></script><![endif]-->
         <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
         <script type="text/javascript" src="../jquery.signature-panel.js"></script>
         <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
@@ -37,6 +37,7 @@ You can find this code at /examples/signature-panel-start.html
             function signatureOK(signatureData) {
                 // Show the user the signature they've entered.
                 $("#my-target").signaturePanel("drawClickstreamToCanvas", signatureData);
+                $("#my-panel").signaturePanel("clear");
             }
 
             function signatureCancel() {
@@ -83,7 +84,7 @@ Here's an example of how to use the iPad style (you can find this code at /examp
     <html>
     <head>
         <title>SignaturePanel - iPad Styling</title>
-        <!--[if lt IE 9]><script src="../external/excanvas.compiled.js"></script><![endif]-->
+        <!--[if lt IE 9]><script type="text/javascript" src="../external/excanvas.compiled.js"></script><![endif]-->
         <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
         <script type="text/javascript" src="../jquery.signature-panel.js"></script>
         <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
