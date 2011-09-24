@@ -12,6 +12,7 @@
         function signatureOK(signatureData) {
             // Show the user the signature they've entered.
             $("#my-target").signaturePanel("drawClickstreamToCanvas", signatureData);
+            $("#my-panel").signaturePanel("clear");
         }
 
         function signatureCancel() {

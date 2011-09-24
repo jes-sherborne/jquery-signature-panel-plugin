@@ -418,6 +418,17 @@
 			})
 		},
 
+		clear : function() {
+			return this.each(function() {
+				var $this, data, canvas, context;
+				$this = $(this);
+				data = $this.data("signaturePanel");
+				canvas = ($this.find("canvas"))[0];
+				context = canvas.getContext('2d');
+				internal.clearSignature(canvas, context, data);
+			})
+		},
+
 		drawClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
 				var canvas, context, i, inPath, scalingFactorX, scalingFactorY, scalingFactor, x, y, $canvas;
