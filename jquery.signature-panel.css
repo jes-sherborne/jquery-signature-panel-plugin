@@ -69,10 +69,6 @@ div.signature-panel-ipad .signature-panel-control a {
     margin-top: 4px;
 }
 
-div.signature-panel-ipad .signature-panel-control a:hover {
-    text-shadow: #cccccc 0px 0px 3px;
-}
-
 div.signature-panel-ipad .signature-panel-control a:active {
     background: #3A557D;
     background: -webkit-gradient(linear, left top, left bottom, from(#5F6F85), color-stop(0.037, #687B94), color-stop(0.5, #476082), color-stop(0.51, #3A557D), to(#3A557D));
