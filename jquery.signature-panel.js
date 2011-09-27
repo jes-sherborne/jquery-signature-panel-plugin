@@ -30,7 +30,7 @@
 				}
 			};
 
-			r.push("<div class=\"signature-panel-control\" style=\"position: absolute; top: " + ($parentDiv.height() - settings.controlBarHeight) + "px; height: " + settings.controlBarHeight + "px; width: " + $parentDiv.css("width") + ";\">");
+			r.push("<div class=\"signature-panel-control\" style=\"position: absolute; top: " + ($parentDiv.height() - settings.controlBarHeight) + "px; left: 0; height: " + settings.controlBarHeight + "px; width: " + $parentDiv.css("width") + ";\">");
 				r.push(uiHtmlSnippet(settings.clearElementType, "signature-panel-clear", settings.clearCaption));
 				r.push(uiHtmlSnippet(settings.okElementType, "signature-panel-ok", settings.okCaption));
 				r.push(uiHtmlSnippet(settings.cancelElementType, "signature-panel-cancel", settings.cancelCaption));
