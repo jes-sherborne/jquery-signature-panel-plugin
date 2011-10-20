@@ -19,7 +19,7 @@ SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are
 
 ## Getting Started
 
-The easiest way to get started is with a basic example. This example shows how to capture a signature and display it elsewhere. It also optionally loads ExplorerCanvas so that it works in older versions of IE that don't support the HTML5 canvas.
+The easiest way to get started is with a basic example. This example shows how to capture a signature and display it elsewhere. It optionally loads ExplorerCanvas so that it works in older versions of IE that don't support the HTML5 canvas.
 
 You can find this code at /examples/signature-panel-start.html
 
@@ -137,7 +137,7 @@ Here's the basic structure of the HTML that SignaturePanel generates:
 
 ## Dynamically creating and destroying SignaturePanel
 
-Signature is designed to be well-behaved when it is dynamically added and removed from a page. To ensure that SignaturePanel releases its event handlers and cleans up resources, be sure to call `destroy` when you remove it.
+SignaturePanel is designed to be well-behaved when it is dynamically added and removed from a page. To ensure that SignaturePanel releases its event handlers and cleans up resources, be sure to call `destroy` when you remove it.
 
 ## Configurable options
 
