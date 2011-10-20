@@ -9,6 +9,7 @@
 }
 
 .signature-panel-clear {
+    float: left;
     margin-left: 10px;
 }
 
