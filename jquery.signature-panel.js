@@ -147,6 +147,9 @@
 					return {status: "disjoint", x: null, y: null};
 				}
 			}
+		},
+		handleMouseMove: function(event) {
+
 		}
 	};
 
@@ -154,7 +157,7 @@
 		init : function(options) {
 
 			return this.each(function() {
-				var $this, data, $canvas, canvas, context, $wrapper;
+				var $this, data, $canvas, canvas, context, $wrapper, handleMouseMove, handleMouseUp;
 
 				$this = $(this);
 
@@ -231,48 +234,7 @@
 
 				// Attach event handlers
 
-				$this.find(".signature-panel-clear").bind("click.signaturePanel", function () {
-					internal.clearSignature($canvas[0], context, data);
-					return false;
-				});
-
-				$this.find(".signature-panel-cancel").bind("click.signaturePanel", function () {
-					internal.clearSignature($canvas[0], context, data);
-					if (data.settings.cancelCallback) {
-						data.settings.cancelCallback();
-					}
-					return false;
-				});
-
-				$this.find(".signature-panel-ok").bind("click.signaturePanel", function () {
-					if (data.settings.okCallback) {
-						data.settings.okCallback(data.getSignatureData());
-					}
-					return false;
-				});
-
-				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
-					var location, t;
-
-					t = (new Date).getTime();
-					if (!data.firstTime) {
-						data.firstTime = t;
-					}
-					t = t - data.firstTime;
-
-					event.preventDefault();
-					location = internal.processEventLocation(event, $canvas);
-					data.drawState = "draw";
-					if (!data.havePath) {
-						context.beginPath();
-						data.havePath = true;
-					}
-					context.moveTo(location.x, location.y);
-					data.lastLocation = location;
-					data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureStart"});
-				});
-
-				$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", function (event) {
+				handleMouseMove = function(event) {
 					var location, t, inBounds, boundaryLocation, lastLocationInBounds;
 
 					t = (new Date).getTime();
@@ -283,6 +245,8 @@
 						inBounds = !((location.x < 0) || (location.x > data.canvasWidth) || (location.y < 0) || (location.y > data.canvasHeight));
 						t = t - data.firstTime;
 					} else {
+						// This shouldn't have fired; somehow we missed our chance to unbind. Unbind the event handler now.
+						$(document).unbind(".signaturePanel");
 						return;
 					}
 
@@ -352,14 +316,64 @@
 							data.lastLocation = location;
 						}
 					}
-				});
+				};
 
-				$(document).bind("mouseup.signaturePanel touchend.signaturePanel touchcancel.signaturePanel", function (event) {
+				handleMouseUp = function(event) {
 					if (data.drawState !== "none") {
 						event.preventDefault();
 						data.drawState = "none";
 					}
+					$(document).unbind(".signaturePanel");
+				};
+
+				$this.find(".signature-panel-clear").bind("click.signaturePanel", function () {
+					internal.clearSignature($canvas[0], context, data);
+					return false;
 				});
+
+				$this.find(".signature-panel-cancel").bind("click.signaturePanel", function () {
+					internal.clearSignature($canvas[0], context, data);
+					if (data.settings.cancelCallback) {
+						data.settings.cancelCallback();
+					}
+					return false;
+				});
+
+				$this.find(".signature-panel-ok").bind("click.signaturePanel", function () {
+					if (data.settings.okCallback) {
+						data.settings.okCallback(data.getSignatureData());
+					}
+					return false;
+				});
+
+				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
+					var location, t;
+
+					t = (new Date).getTime();
+					if (!data.firstTime) {
+						data.firstTime = t;
+					}
+					t = t - data.firstTime;
+
+					event.preventDefault();
+					location = internal.processEventLocation(event, $canvas);
+					data.drawState = "draw";
+					if (!data.havePath) {
+						context.beginPath();
+						data.havePath = true;
+					}
+					context.moveTo(location.x, location.y);
+					data.lastLocation = location;
+					data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureStart"});
+
+					// Bind mouseMove and mouseUp handlers
+
+					$(document).unbind(".signaturePanel");
+					$(document).bind("mousemove.signaturePanel touchmove.signaturePanel", handleMouseMove);
+					$(document).bind("mouseup.signaturePanel touchend.signaturePanel touchcancel.signaturePanel", handleMouseUp);
+
+				});
+
 
 			});
 		},
