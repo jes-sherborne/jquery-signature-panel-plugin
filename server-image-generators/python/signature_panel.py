@@ -29,20 +29,14 @@ def generate_image(jsonData, sizeX=0, sizeY=0):
     penWidth = max([data["penWidth"] * scalingFactor, 1])
 
     polylines = []
-    iPolyline = -1
-    x = 0
-    y = 0
 
     for event in data["clickstream"]:
-        x = event["x"] * scalingFactor
-        y = event["y"] * scalingFactor
+        pt = (event["x"] * scalingFactor, event["y"] * scalingFactor)
         if event["action"] in ["gestureStart", "gestureResume"]:
-            iPolyline += 1
-            polylines.append([])
-            polylines[iPolyline] = [x, y]
+            polylines.append([pt])
         elif event["action"] in ["gestureContinue", "gestureSuspend"]:
-            if iPolyline >= 0:
-                polylines[iPolyline].extend([x, y])
+            if polylines:
+                polylines[-1].append(pt)
 
     return draw_upsampled_polyline(sizeX, sizeY, penColor, penWidth, polylines)
 
@@ -60,20 +54,20 @@ def draw_upsampled_polyline(sizeX, sizeY, penColor, penWidth, polylines, upsampl
     # The emulation approach is attractive because PIL is nearly ubiquitous whereas alternative graphic libraries
     # are less common.
 
-    image = Image.new("RGBA", (sizeX * upsampleFactor, sizeY * upsampleFactor), (0, 0, 0, 0))
+    def upsample(pt):
+        return (upsampleFactor * pt[0], upsampleFactor * pt[1])
+
+    image = Image.new("RGBA", upsample((sizeX, sizeY)), (0, 0, 0, 0))
     drawing = ImageDraw.Draw(image)
 
     if len(polylines) > 0:
         p = upsampleFactor * penWidth / 2
-        x1 = upsampleFactor * polylines[0][0]
-        y1 = upsampleFactor * polylines[0][1]
+        x1, y1 = upsample(polylines[0][0])
         drawing.ellipse((x1 - p, y1 - p, x1 + p, y1 + p), fill=penColor)
         for polyline in polylines:
-            for i in xrange(0, len(polyline) - 4, 2):
-                x1 = upsampleFactor * polyline[i]
-                y1 = upsampleFactor * polyline[i + 1]
-                x2 = upsampleFactor * polyline[i + 2]
-                y2 = upsampleFactor * polyline[i + 3]
+            for i in xrange(0, len(polyline) - 1):
+                x1, y1 = upsample(polyline[i])
+                x2, y2 = upsample(polyline[i + 1])
                 dx = x2 - x1
                 dy = y2 - y1
                 d = math.sqrt(dx * dx + dy * dy)
