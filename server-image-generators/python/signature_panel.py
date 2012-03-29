@@ -22,7 +22,9 @@ def generate_image(jsonData, sizeX=0, sizeY=0):
         sizeX = data["canvasWidth"]
         sizeY = data["canvasHeight"]
 
-    scalingFactor = min([sizeX / data["canvasWidth"], sizeY / data["canvasHeight"]])
+    scalingFactor = min([
+        sizeX / float(data["canvasWidth"]), 
+        sizeY / float(data["canvasHeight"])])
     penColor = data["penColor"]
     penWidth = max([data["penWidth"] * scalingFactor, 1])
 
