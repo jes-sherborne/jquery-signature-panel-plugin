@@ -12,11 +12,11 @@ def generate_image(jsonData, sizeX=0, sizeY=0):
     data = json.loads(jsonData)
 
     if data["dataVersion"] != 1:
-        raise StandardError("Unsupported data version")
+        raise ValueError("Unsupported data version")
     if data["canvasWidth"] <= 0:
-        raise StandardError("Invalid canvasWidth")
+        raise ValueError("Invalid canvasWidth")
     if data["canvasHeight"] <= 0:
-        raise StandardError("Invalid canvasHeight")
+        raise ValueError("Invalid canvasHeight")
 
     if (sizeX == 0 or sizeY == 0):
         sizeX = data["canvasWidth"]
