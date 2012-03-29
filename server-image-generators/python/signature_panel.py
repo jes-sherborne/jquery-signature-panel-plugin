@@ -42,17 +42,17 @@ def generate_image(jsonData, sizeX=0, sizeY=0):
 
 
 def draw_upsampled_polyline(sizeX, sizeY, penColor, penWidth, polylines, upsampleFactor=4):
-    # PIL lacks three things that we need to make the generated image match what the user saw
-    #     * antialiased lines
-    #     * round endcaps on lines
-    #     * round mitred joins between lines
-    #
-    # We emulate antialising by drawing at a larger size (given by the upsample factor) and scaling down
-    # We emulate the endcaps and mitres by drawing circles at each vertex point.
-    #
-    # As an alternative, you could use a different library (e.g., ImageMagick) that handles these features natively.
-    # The emulation approach is attractive because PIL is nearly ubiquitous whereas alternative graphic libraries
-    # are less common.
+    """ PIL lacks three things that we need to make the generated image match what the user saw
+         * antialiased lines
+         * round endcaps on lines
+         * round mitred joins between lines
+    
+    We emulate antialising by drawing at a larger size (given by the upsample factor) and scaling down
+    We emulate the endcaps and mitres by drawing circles at each vertex point.
+    
+    As an alternative, you could use a different library (e.g., ImageMagick) that handles these features natively.
+    The emulation approach is attractive because PIL is nearly ubiquitous whereas alternative graphic libraries
+    are less common."""
 
     def upsample(pt):
         return (upsampleFactor * pt[0], upsampleFactor * pt[1])
