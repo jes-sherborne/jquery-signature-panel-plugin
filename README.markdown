@@ -4,6 +4,8 @@ SignaturePanel is a jQuery plugin that enables you to capture signatures and dis
 
 SignaturePanel doesn't just capture how the signature appears. It also captures the timing of each gesture so that you have the information you need to replay the signature in real time. By capturing this information, it provides stronger evidence that the signature is genuine.
 
+In addition to the jQuery plugin, SignaturePanel also includes optional server-side libraries that you can use to generate image files from the raw signature data.
+
 ## Compatibility
 
 SignaturePanel has been tested in the following browsers:
@@ -16,6 +18,12 @@ SignaturePanel has been tested in the following browsers:
 * Chrome
 
 SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are likely to work as well but have not been tested.
+
+The optional server-side code to generate images has been tested in the following languages (note that many other versions--both earlier and later--are likely to work as well).:
+
+* Ruby 1.8.7
+* Python 2.7.1
+* PHP 5.3.6
 
 ## Getting Started
 
@@ -173,3 +181,84 @@ SignaturePanel produces a single JavaScript object that provides all the informa
         * _gestureContinue_: the user has added a point to the gesture. In other words, the user is actively drawing
         * _gestureSuspend_: the user is actively drawing, but they have gone outside the boundary of the canvas. This gives the linearly interpolated position where the boundary crossing occurred
         * _gestureResume_: the user has continued actively drawing and has re-entered the canvas. This gives the linearly interpolated position where the boundary crossing occurred. Since the user may stop drawing while outside the canvas, you are not guaranteed to get a gestureResume after every gestureSuspend.
+
+## Generating image files on a server
+
+SignaturePanel includes code that you can run on your server to generate image files from the signature data captured on the client.
+
+By default, the function will generate an image with the same pixel measurements as were originally captured on the client. You can also specify the size of the generated image, and SignaturePanel will scale the signature appropriately to fit within these bounds.
+
+### Ruby
+
+The Ruby library uses ImageMagick to generate a `Magick::Image` object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.).
+
+To generate the image, you will write code like this:
+
+    require 'signature-panel.rb'
+    ...
+
+    post '/process-signature' do
+        image = SignaturePanel::GenerateImage(request.body.read)
+        filename = 'latest-signature.png'
+
+        image.write(filename)
+
+        # If you want to stream your PNG directly to a database instead of saving a file,
+        # you can get a binary stream like this:
+        # image.to_blob {self.format = "PNG"}
+
+        content_type :text
+
+        # Send the name of the newly-generated file to the client
+        body filename
+    end
+
+You can find a full working example (written for the [Sinatra microframework](http://www.sinatrarb.com) at /server-image-generators/ruby/example. The SignaturePanel function will work equally well in Ruby on Rails (and presumably any other Ruby web framework).
+
+
+### Python
+
+The Python library uses PIL to generate an `Image` object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.).
+
+To generate the image, you will write code like this:
+
+    import signature_panel
+
+    ...
+
+    @route('/process-signature', method='POST')
+    def process_signature():
+        image = signature_panel.generate_image(request.body.read())
+        filename = 'latest-signature.png'
+
+        # Since this is an Image object, you can save it to a file, stream it to a database, or manipulate it further.
+
+        image.save(filename)
+        response.content_type = 'text; charset=utf-8'
+
+        # Send the name of the newly-generated file to the client
+        return filename
+
+You can find a full working example (written for the [Bottle microframework](http://bottlepy.org) at /server-image-generators/python/example. The SignaturePanel function should work equally well in other Python web frameworks as well.
+
+### PHP
+
+The PHP library uses GD to generate an image object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.).
+
+To generate the image, you will write code like this:
+
+    <?php
+    require_once "signature_panel.php";
+    $jsonData = file_get_contents('php://input');
+    $image = generate_signature_panel_image($jsonData);
+
+    $filename = "latest-signature.png";
+
+    # Since this is an Image object, you can save it to a file, stream it to a database, or manipulate it further.
+    imagepng($image, $filename);
+
+    # Send the name of the newly-generated file to the client
+    echo $filename;
+    ?>
+
+You can find a full working example at /server-image-generators/php/example.
