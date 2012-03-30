@@ -409,14 +409,17 @@
 
 		drawClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
-				var canvas, context, i, inPath, scalingFactorX, scalingFactorY, scalingFactor, x, y, $canvas;
-			
+				var canvas, context, i, scalingFactorX, scalingFactorY, scalingFactor, x, y, $canvas;
+
+				if (signatureData.dataVersion !== 1) {
+					throw new Error("Unsupported data version");
+				}
+
 				canvas = this;
 				context = canvas.getContext("2d");
 				$canvas = $(canvas);
 
 				internal.clearHtmlCanvas(canvas, context);
-				//canvas.width = canvas.width;
 
 				if ($canvas.width() <= 0) {
 					scalingFactorX = 0;
@@ -438,20 +441,15 @@
 				context.fillStyle = "none";
 				context.beginPath();
 
-				inPath = false;
 				for (i = 0; i < signatureData.clickstream.length; i++) {
 					x = signatureData.clickstream[i].x * scalingFactor;
 					y = signatureData.clickstream[i].y * scalingFactor;
 					switch (signatureData.clickstream[i].action) {
 					case "gestureResume":
-						context.moveTo(x, y);
-						break;
 					case "gestureStart":
 						context.moveTo(x, y);
 						break;
 					case "gestureContinue":
-						context.lineTo(x, y);
-						break;
 					case "gestureSuspend":
 						context.lineTo(x, y);
 						break;
