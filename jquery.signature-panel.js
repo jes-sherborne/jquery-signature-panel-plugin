@@ -310,7 +310,20 @@
 								t: t,
 								action: "gestureResume"
 							});
-							data.lastLocation = location;
+                            context.lineTo(location.x, location.y);
+                            if (!data.emulatedCanvas) {
+                                // The canvas emulation tends to jitter between drawing calls
+                                // This makes the effect less pronounced
+                                context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
+                            }
+                            context.stroke();
+                            data.clickstream.push({
+                                x: location.x,
+                                y: location.y,
+                                t: t,
+                                action: "gestureContinue"
+                            });
+                            data.lastLocation = location;
 							data.drawState = "draw";
 						} else {
 							data.lastLocation = location;
