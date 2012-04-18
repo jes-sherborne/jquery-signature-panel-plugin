@@ -235,7 +235,7 @@
 				// Attach event handlers
 
 				handleMouseMove = function(event) {
-					var location, t, inBounds, boundaryLocation, lastLocationInBounds;
+					var location, t, inBounds, boundaryLocation, lastLocationInBounds, newPoint;
 
 					t = (new Date).getTime();
 
@@ -268,68 +268,58 @@
 
 					if (lastLocationInBounds) {
 						if (inBounds) {
-							context.lineTo(location.x, location.y);
-							if (!data.emulatedCanvas) {
-								// The canvas emulation tends to jitter between drawing calls
-								// This makes the effect less pronounced
-								context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
-							}
-							context.stroke();
-							data.clickstream.push({
-								x: location.x,
-								y: location.y,
-								t: t,
-								action: "gestureContinue"
-							});
-							data.lastLocation = location;
+                            newPoint = {
+                                x: location.x,
+                                y: location.y,
+                                t: t,
+                                action: "gestureContinue"
+                            };
 						} else {
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
-							context.lineTo(boundaryLocation.x, boundaryLocation.y);
-							if (!data.emulatedCanvas) {
-								// The canvas emulation tends to jitter between drawing calls
-								// This makes the effect less pronounced
-								context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
-							}
-							context.stroke();
-							data.clickstream.push({
+							newPoint = {
 								x: boundaryLocation.x,
 								y: boundaryLocation.y,
 								t: t,
 								action: "gestureSuspend"
-							});
-							data.lastLocation = location;
+							};
 							data.drawState = "suspend";
 						}
 					} else {
 						if (inBounds) {
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
-							context.moveTo(boundaryLocation.x, boundaryLocation.y);
+
+                            // resume the drawing at the boundary crossing
+                            context.moveTo(boundaryLocation.x, boundaryLocation.y);
 							data.clickstream.push({
 								x: boundaryLocation.x,
 								y: boundaryLocation.y,
 								t: t,
 								action: "gestureResume"
 							});
-                            context.lineTo(location.x, location.y);
-                            if (!data.emulatedCanvas) {
-                                // The canvas emulation tends to jitter between drawing calls
-                                // This makes the effect less pronounced
-                                context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
-                            }
-                            context.stroke();
-                            data.clickstream.push({
+
+                            // continue drawing to the newly added point
+                            newPoint = {
                                 x: location.x,
                                 y: location.y,
                                 t: t,
                                 action: "gestureContinue"
-                            });
-                            data.lastLocation = location;
+                            };
 							data.drawState = "draw";
-						} else {
-							data.lastLocation = location;
 						}
 					}
-				};
+
+                    if (newPoint) {
+                        context.lineTo(newPoint.x, newPoint.y);
+                        if (!data.emulatedCanvas) {
+                            // The canvas emulation tends to jitter between drawing calls
+                            // This makes the effect less pronounced
+                            context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
+                        }
+                        context.stroke();
+                        data.clickstream.push(newPoint);
+                    }
+                    data.lastLocation = location;
+                };
 
 				handleMouseUp = function(event) {
 					if (data.drawState !== "none") {
