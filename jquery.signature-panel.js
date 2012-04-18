@@ -202,7 +202,7 @@
 				$this.empty();
 
 				$this.append("<div class=\"signature-panel-wrapper\" style=\"position: relative; height: " + $this.height() + "px; width: " + $this.width() + "px;\"></div>");
-				$wrapper = $this.find(".signature-panel-wrapper")
+				$wrapper = $this.find(".signature-panel-wrapper");
 
 				// We're using native DOM methods to work around some quirks with ExplorerCanvas when dynamically
 				// creating canvas elements.
