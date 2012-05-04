@@ -289,6 +289,7 @@
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
 
                             // resume the drawing at the boundary crossing
+                            context.beginPath();
                             context.moveTo(boundaryLocation.x, boundaryLocation.y);
 							data.clickstream.push({
 								x: boundaryLocation.x,
@@ -310,13 +311,12 @@
 
                     if (newPoint) {
                         context.lineTo(newPoint.x, newPoint.y);
-                        if (!data.emulatedCanvas) {
-                            // The canvas emulation tends to jitter between drawing calls
-                            // This makes the effect less pronounced
-                            context.clearRect(0, 0, data.canvasWidth, data.canvasHeight);
-                        }
                         context.stroke();
+                        context.closePath();
                         data.clickstream.push(newPoint);
+                        context.beginPath();
+                        context.moveTo(newPoint.x, newPoint.y);
+                        data.havePath = true;
                     }
                     data.lastLocation = location;
                 };
