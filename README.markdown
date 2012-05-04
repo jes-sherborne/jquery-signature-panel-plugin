@@ -173,8 +173,8 @@ SignaturePanel produces a single JavaScript object that provides all the informa
 * __penColor__ (string): HTML color value of the pen
 * __penWidth__ (float): width of the pen in pixels
 * __clickstream__ (array of objects): actual signature data. Each entry has the following:
-    * __x__ (float): x coordinate of the event. 0 <= x <= canvasWidth
-    * __y__ (float): y coordinate of the event. 0 <= y <= canvasHeight
+    * __x__ (float): x coordinate of the event. 0 ≤ x ≤ canvasWidth
+    * __y__ (float): y coordinate of the event. 0 ≤ y ≤ canvasHeight
     * __t__ (float): time of the event in milliseconds relative to the start of the drawing. The first event is always at t=0.
     * __action__ (string): which kind of action this event represents. Possible values are:
         * _gestureStart_: the user has begun to draw a gesture (a signature can contain multiple gestures). There is no an action that explicitly marks the end of a gesture. You will simply receive another gestureStart to indicate that a new gesture is beginning.
@@ -182,15 +182,25 @@ SignaturePanel produces a single JavaScript object that provides all the informa
         * _gestureSuspend_: the user is actively drawing, but they have gone outside the boundary of the canvas. This gives the linearly interpolated position where the boundary crossing occurred
         * _gestureResume_: the user has continued actively drawing and has re-entered the canvas. This gives the linearly interpolated position where the boundary crossing occurred. Since the user may stop drawing while outside the canvas, you are not guaranteed to get a gestureResume after every gestureSuspend.
 
-## Generating image files on a server
+## Displaying signatures
 
-SignaturePanel includes code that you can run on your server to generate image files from the signature data captured on the client.
+You can use SignaturePanel's built-in functions to display a previously-captured signature on an HTML canvas. You can also use the supplied helper functions on your server to generate image files.
 
-By default, the function will generate an image with the same pixel measurements as were originally captured on the client. You can also specify the size of the generated image, and SignaturePanel will scale the signature appropriately to fit within these bounds.
+### Recreating a signature in the browser from JSON data
 
-### Ruby
+To recreate a signature from previously captured signature data, you need to create a `canvas` element in your markup, using whatever size and other CSS styling suits your needs:
 
-The Ruby library uses ImageMagick to generate a `Magick::Image` object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.).
+    <canvas id="signature-display" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+
+To display the signature, use the `drawClickstreamToCanvas` function with your canvas as a target:
+
+    $("#signature-display").signaturePanel("drawClickstreamToCanvas", signatureData);
+
+The function automatically scales the signature so that it fills the dimensions of the canvas.
+
+### Generating image files on the server using Ruby
+
+The Ruby library uses ImageMagick to generate a `Magick::Image` object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.). By default, the function will generate an image with the same pixel measurements as were originally captured on the client. You can also specify the size of the generated image, and SignaturePanel will scale the signature appropriately to fit within these bounds.
 
 To generate the image, you will write code like this:
 
@@ -216,9 +226,9 @@ To generate the image, you will write code like this:
 You can find a full working example (written for the [Sinatra microframework](http://www.sinatrarb.com) at /server-image-generators/ruby/example. The SignaturePanel function will work equally well in Ruby on Rails (and presumably any other Ruby web framework).
 
 
-### Python
+### Generating image files on the server using Python
 
-The Python library uses PIL to generate an `Image` object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.).
+The Python library uses PIL to generate an `Image` object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.). By default, the function will generate an image with the same pixel measurements as were originally captured on the client. You can also specify the size of the generated image, and SignaturePanel will scale the signature appropriately to fit within these bounds.
 
 To generate the image, you will write code like this:
 
@@ -241,9 +251,9 @@ To generate the image, you will write code like this:
 
 You can find a full working example (written for the [Bottle microframework](http://bottlepy.org) at /server-image-generators/python/example. The SignaturePanel function should work equally well in other Python web frameworks as well.
 
-### PHP
+### Generating image files on the server using PHP
 
-The PHP library uses GD to generate an image object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.).
+The PHP library uses GD to generate an image object, which you can use to write image files or stream the data in a variety of formats (PNG, JPEG, etc.). By default, the function will generate an image with the same pixel measurements as were originally captured on the client. You can also specify the size of the generated image, and SignaturePanel will scale the signature appropriately to fit within these bounds.
 
 To generate the image, you will write code like this:
 
