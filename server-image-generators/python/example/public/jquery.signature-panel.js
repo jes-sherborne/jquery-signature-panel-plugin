@@ -175,6 +175,34 @@
 			context.lineTo(x2, y2);
 			context.stroke();
 			context.closePath();
+		},
+		polyfillAnimationFrame: function() {
+			var lastTime, i;
+
+		    vendors = ['ms', 'moz', 'webkit', 'o'];
+
+			for(i = 0; i < vendors.length && !window.requestAnimationFrame; i++) {
+		        window.requestAnimationFrame = window[vendors[i]+'RequestAnimationFrame'];
+		        window.cancelAnimationFrame = window[vendors[i]+'CancelAnimationFrame']
+		                                   || window[vendors[i]+'CancelRequestAnimationFrame'];
+		    }
+
+		    if (!window.requestAnimationFrame) {
+		        window.requestAnimationFrame = function(callback, element) {
+		            var currentTime, timeToCall, id, msPerFrame;
+
+					msPerFrame = 1000 / 60;
+			        currentTime = new Date().getTime();
+			        timeToCall = Math.round((Math.floor(currentTime / msPerFrame) + 1) * msPerFrame);
+		            id = window.setTimeout(function() { callback(new Date().getTime()); }, timeToCall - currentTime);
+		            return id;
+		        };
+		    }
+
+		    if (!window.cancelAnimationFrame)
+		        window.cancelAnimationFrame = function(id) {
+		            clearTimeout(id);
+		        };
 		}
 	};
 
@@ -469,6 +497,9 @@
 					throw new Error("Unsupported data version");
 				}
 
+				// add support for getAnimationFrame if not present. No harm in calling this multiple times.
+				internal.polyfillAnimationFrame();
+
 				canvas = this;
 				context = canvas.getContext("2d");
 				$canvas = $(canvas);
@@ -503,14 +534,14 @@
 						iLastEvent = i;
 					}
 					if (i < signatureData.clickstream.length) {
-						webkitRequestAnimationFrame(renderFrame, canvas);
+						requestAnimationFrame(renderFrame, canvas);
 					}
 				};
 
 				startTime = new Date().getTime();
 				iLastEvent = -1;
 
-				webkitRequestAnimationFrame(renderFrame, canvas);
+				requestAnimationFrame(renderFrame, canvas);
 			})
 		}
 
