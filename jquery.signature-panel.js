@@ -148,8 +148,33 @@
 				}
 			}
 		},
-		handleMouseMove: function(event) {
+		scalingFactor: function (canvasWidth, canvasHeight, dataCanvasWidth, dataCanvasHeight) {
 
+			if (canvasWidth <= 0) {
+				scalingFactorX = 0;
+			} else {
+				scalingFactorX = canvasWidth / dataCanvasWidth;
+			}
+			if (canvasHeight <= 0) {
+				scalingFactorY = 0;
+			} else {
+				scalingFactorY = canvasHeight / dataCanvasHeight;
+			}
+			return Math.min(scalingFactorX, scalingFactorY);
+		},
+		setDrawingContextProperties: function(context, lineWidth, lineColor) {
+			context.lineWidth = lineWidth;
+			context.strokeStyle = lineColor;
+			context.lineCap = "round";
+			context.lineJoin = "round";
+			context.fillStyle = "none";
+		},
+		canvasDrawLine: function(context, x1, y1, x2, y2) {
+			context.beginPath();
+			context.moveTo(x1, y1);
+			context.lineTo(x2, y2);
+			context.stroke();
+			context.closePath();
 		}
 	};
 
@@ -225,11 +250,7 @@
 				data.canvasHeight = canvas.height;
 				data.canvasWidth = canvas.width;
 
-				context.lineWidth = data.settings.penWidth;
-				context.strokeStyle = data.settings.penColor;
-				context.lineCap = "round";
-				context.lineJoin = "round";
-				context.fillStyle = "none";
+				internal.setDrawingContextProperties(context, data.settings.penWidth, data.settings.penColor);
 
 				// Attach event handlers
 
@@ -310,11 +331,7 @@
 					}
 
                     if (newPoint) {
-	                    context.beginPath();
-                        context.moveTo(lineStart.x, lineStart.y);
-                        context.lineTo(newPoint.x, newPoint.y);
-                        context.stroke();
-                        context.closePath();
+	                    internal.canvasDrawLine(context, lineStart.x, lineStart.y, newPoint.x, newPoint.y);
                         data.clickstream.push(newPoint);
                     }
                     data.lastLocation = location;
@@ -406,7 +423,7 @@
 
 		drawClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
-				var canvas, context, i, scalingFactorX, scalingFactorY, scalingFactor, x, y, $canvas;
+				var canvas, context, i, scalingFactor, x, y, $canvas;
 
 				if (signatureData.dataVersion !== 1) {
 					throw new Error("Unsupported data version");
@@ -418,24 +435,11 @@
 
 				internal.clearHtmlCanvas(canvas, context);
 
-				if ($canvas.width() <= 0) {
-					scalingFactorX = 0;
-				} else {
-					scalingFactorX = $canvas.width() / signatureData.canvasWidth;
-				}
-				if ($canvas.height() <= 0) {
-					scalingFactorY = 0;
-				} else {
-					scalingFactorY = $canvas.height() / signatureData.canvasHeight;
-				}
-				scalingFactor = Math.min(scalingFactorX, scalingFactorY);
+				scalingFactor = internal.scalingFactor($canvas.width(), $canvas.height(), signatureData.canvasWidth, signatureData.canvasHeight);
 
 				//render clickstream
-				context.lineWidth = signatureData.penWidth * scalingFactor;
-				context.strokeStyle = signatureData.penColor;
-				context.lineCap = "round";
-				context.lineJoin = "round";
-				context.fillStyle = "none";
+
+				internal.setDrawingContextProperties(context, signatureData.penWidth * scalingFactor, signatureData.penColor);
 				context.beginPath();
 
 				for (i = 0; i < signatureData.clickstream.length; i++) {
@@ -459,7 +463,7 @@
 
 		animateClickstreamToCanvas : function(signatureData) {
 			return this.each(function() {
-				var canvas, context, scalingFactorX, scalingFactorY, scalingFactor, $canvas, startTime, iLastEvent, renderFrame, lastX, lastY;
+				var canvas, context, scalingFactor, $canvas, startTime, iLastEvent, renderFrame, lastX, lastY;
 
 				if (signatureData.dataVersion !== 1) {
 					throw new Error("Unsupported data version");
@@ -471,24 +475,10 @@
 
 				internal.clearHtmlCanvas(canvas, context);
 
-				if ($canvas.width() <= 0) {
-					scalingFactorX = 0;
-				} else {
-					scalingFactorX = $canvas.width() / signatureData.canvasWidth;
-				}
-				if ($canvas.height() <= 0) {
-					scalingFactorY = 0;
-				} else {
-					scalingFactorY = $canvas.height() / signatureData.canvasHeight;
-				}
-				scalingFactor = Math.min(scalingFactorX, scalingFactorY);
+				scalingFactor = internal.scalingFactor($canvas.width(), $canvas.height(), signatureData.canvasWidth, signatureData.canvasHeight);
 
 				//render clickstream
-				context.lineWidth = signatureData.penWidth * scalingFactor;
-				context.strokeStyle = signatureData.penColor;
-				context.lineCap = "round";
-				context.lineJoin = "round";
-				context.fillStyle = "none";
+				internal.setDrawingContextProperties(context, signatureData.penWidth * scalingFactor, signatureData.penColor);
 
 				renderFrame = function (animationTime) {
 					var x, y, frameTime, i;
@@ -505,11 +495,7 @@
 							break;
 						case "gestureContinue":
 						case "gestureSuspend":
-							context.beginPath();
-							context.moveTo(lastX, lastY);
-							context.lineTo(x, y);
-							context.stroke();
-							context.closePath();
+							internal.canvasDrawLine(context, lastX, lastY, x, y);
 							break;
 						}
 						lastX = x;
