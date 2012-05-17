@@ -186,7 +186,6 @@
 						clearSignature: function () {
 							this.clickstream = [];
 							this.drawState = "none";
-							this.havePath = false;
 							this.firstTime = null;
 						}
 					});
@@ -235,7 +234,7 @@
 				// Attach event handlers
 
 				handleMouseMove = function(event) {
-					var location, t, inBounds, boundaryLocation, lastLocationInBounds, newPoint;
+					var location, t, inBounds, boundaryLocation, lastLocationInBounds, newPoint, lineStart;
 
 					t = (new Date).getTime();
 
@@ -267,6 +266,7 @@
 					lastLocationInBounds = (data.drawState === "draw");
 
 					if (lastLocationInBounds) {
+						lineStart = data.lastLocation;
 						if (inBounds) {
                             newPoint = {
                                 x: location.x,
@@ -289,8 +289,8 @@
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
 
                             // resume the drawing at the boundary crossing
-                            context.beginPath();
-                            context.moveTo(boundaryLocation.x, boundaryLocation.y);
+							lineStart = boundaryLocation
+
 							data.clickstream.push({
 								x: boundaryLocation.x,
 								y: boundaryLocation.y,
@@ -310,13 +310,12 @@
 					}
 
                     if (newPoint) {
+	                    context.beginPath();
+                        context.moveTo(lineStart.x, lineStart.y);
                         context.lineTo(newPoint.x, newPoint.y);
                         context.stroke();
                         context.closePath();
                         data.clickstream.push(newPoint);
-                        context.beginPath();
-                        context.moveTo(newPoint.x, newPoint.y);
-                        data.havePath = true;
                     }
                     data.lastLocation = location;
                 };
@@ -361,11 +360,6 @@
 					event.preventDefault();
 					location = internal.processEventLocation(event, $canvas);
 					data.drawState = "draw";
-					if (!data.havePath) {
-						context.beginPath();
-						data.havePath = true;
-					}
-					context.moveTo(location.x, location.y);
 					data.lastLocation = location;
 					data.clickstream.push({x: location.x, y: location.y, t: t, action: "gestureStart"});
 
@@ -460,6 +454,77 @@
 				}
 				context.stroke();
 				context.closePath();
+			})
+		},
+
+		animateClickstreamToCanvas : function(signatureData) {
+			return this.each(function() {
+				var canvas, context, scalingFactorX, scalingFactorY, scalingFactor, $canvas, startTime, iLastEvent, renderFrame, lastX, lastY;
+
+				if (signatureData.dataVersion !== 1) {
+					throw new Error("Unsupported data version");
+				}
+
+				canvas = this;
+				context = canvas.getContext("2d");
+				$canvas = $(canvas);
+
+				internal.clearHtmlCanvas(canvas, context);
+
+				if ($canvas.width() <= 0) {
+					scalingFactorX = 0;
+				} else {
+					scalingFactorX = $canvas.width() / signatureData.canvasWidth;
+				}
+				if ($canvas.height() <= 0) {
+					scalingFactorY = 0;
+				} else {
+					scalingFactorY = $canvas.height() / signatureData.canvasHeight;
+				}
+				scalingFactor = Math.min(scalingFactorX, scalingFactorY);
+
+				//render clickstream
+				context.lineWidth = signatureData.penWidth * scalingFactor;
+				context.strokeStyle = signatureData.penColor;
+				context.lineCap = "round";
+				context.lineJoin = "round";
+				context.fillStyle = "none";
+
+				renderFrame = function (animationTime) {
+					var x, y, frameTime, i;
+					frameTime = animationTime - startTime;
+					for (i = iLastEvent + 1; i < signatureData.clickstream.length; i++) {
+						if (signatureData.clickstream[i].t > frameTime) {
+							break;
+						}
+						x = signatureData.clickstream[i].x * scalingFactor;
+						y = signatureData.clickstream[i].y * scalingFactor;
+						switch (signatureData.clickstream[i].action) {
+						case "gestureResume":
+						case "gestureStart":
+							break;
+						case "gestureContinue":
+						case "gestureSuspend":
+							context.beginPath();
+							context.moveTo(lastX, lastY);
+							context.lineTo(x, y);
+							context.stroke();
+							context.closePath();
+							break;
+						}
+						lastX = x;
+						lastY = y;
+						iLastEvent = i;
+					}
+					if (i < signatureData.clickstream.length) {
+						webkitRequestAnimationFrame(renderFrame, canvas);
+					}
+				};
+
+				startTime = new Date().getTime();
+				iLastEvent = -1;
+
+				webkitRequestAnimationFrame(renderFrame, canvas);
 			})
 		}
 

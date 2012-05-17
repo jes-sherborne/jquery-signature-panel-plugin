@@ -12,6 +12,7 @@
         function signatureOK(signatureData) {
             // Show the user the signature they've entered.
             $("#my-target").signaturePanel("drawClickstreamToCanvas", signatureData);
+            $("#my-animated-target").signaturePanel("animateClickstreamToCanvas", signatureData);
             $("#my-panel").signaturePanel("clear");
         }
 
@@ -34,5 +35,7 @@
     <div id="my-panel" style="width: 500px; height: 300px; border: 10px solid gray"></div>
     <h2>Here's what you signed</h2>
     <canvas id="my-target" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+    <h2>Here's a reanimated signature</h2>
+    <canvas id="my-animated-target" height="100" width="250" style="border: 1px solid gray;" ></canvas>
 </body>
 </html>
