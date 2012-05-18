@@ -149,6 +149,7 @@
 			}
 		},
 		scalingFactor: function (canvasWidth, canvasHeight, dataCanvasWidth, dataCanvasHeight) {
+			var scalingFactorX, scalingFactorY;
 
 			if (canvasWidth <= 0) {
 				scalingFactorX = 0;
@@ -176,33 +177,62 @@
 			context.stroke();
 			context.closePath();
 		},
-		polyfillAnimationFrame: function() {
-			var lastTime, i;
+		polyfill: {
+			InstallAnimationFrame: function() {
+				var i, vendors, requestFunction, cancelFunction;
 
-		    vendors = ['ms', 'moz', 'webkit', 'o'];
+				requestFunction = window.requestAnimationFrame;
+				cancelFunction = window.cancelAnimationFrame;
 
-			for(i = 0; i < vendors.length && !window.requestAnimationFrame; i++) {
-		        window.requestAnimationFrame = window[vendors[i]+'RequestAnimationFrame'];
-		        window.cancelAnimationFrame = window[vendors[i]+'CancelAnimationFrame']
-		                                   || window[vendors[i]+'CancelRequestAnimationFrame'];
-		    }
+				if (!internal.requestAnimationFrame || !internal.cancelAnimationFrame) {
+					internal.requestAnimationFrame = window.requestAnimationFrame;
+					internal.cancelAnimationFrame = window.cancelAnimationFrame;
+				}
 
-		    if (!window.requestAnimationFrame) {
-		        window.requestAnimationFrame = function(callback, element) {
-		            var currentTime, timeToCall, id, msPerFrame;
+				vendors = ['ms', 'moz', 'webkit', 'o'];
 
-					msPerFrame = 1000 / 60;
-			        currentTime = new Date().getTime();
-			        timeToCall = Math.round((Math.floor(currentTime / msPerFrame) + 1) * msPerFrame);
-		            id = window.setTimeout(function() { callback(new Date().getTime()); }, timeToCall - currentTime);
-		            return id;
-		        };
-		    }
+				for(i = 0; i < vendors.length && !requestFunction; i++) {
+					requestFunction = window[vendors[i]+'RequestAnimationFrame'];
+					cancelFunction = window[vendors[i]+'CancelAnimationFrame']
+			            || window[vendors[i]+'CancelRequestAnimationFrame'];
+			    }
 
-		    if (!window.cancelAnimationFrame)
-		        window.cancelAnimationFrame = function(id) {
-		            clearTimeout(id);
-		        };
+			    if (!requestFunction || !cancelFunction) {
+				    internal.requestAnimationFrame = function(callback, element) {
+                        var currentTime, timeToCall, id, msPerFrame;
+
+                        msPerFrame = 1000 / 60;
+                        currentTime = internal.dateNow();
+                        timeToCall = Math.round((Math.floor(currentTime / msPerFrame) + 1) * msPerFrame);
+                        id = window.setTimeout(function() { callback(internal.dateNow()); }, timeToCall - currentTime);
+                        return id;
+                    };
+				    internal.cancelAnimationFrame = function(id) {
+                        clearTimeout(id);
+                    };
+			    } else {
+				    internal.requestAnimationFrame = function(callback, element) {
+					    return requestFunction.call(window, callback, element);
+				    };
+				    internal.cancelAnimationFrame = function(id) {
+					    return cancelFunction.call(window, id);
+				    };
+			    }
+
+			},
+			InstallDateNow: function() {
+				if (!Date.now) {
+					internal.dateNow = function() {
+						return +(new Date);
+					}
+				} else {
+					internal.dateNow = Date.now;
+				}
+			},
+			InstallAll: function() {
+				internal.polyfill.InstallDateNow();
+				internal.polyfill.InstallAnimationFrame();
+			}
 		}
 	};
 
@@ -285,7 +315,7 @@
 				handleMouseMove = function(event) {
 					var location, t, inBounds, boundaryLocation, lastLocationInBounds, newPoint, lineStart;
 
-					t = (new Date).getTime();
+					t = internal.dateNow();
 
 					if ((data.drawState === "draw") || (data.drawState === "suspend")) {
 						event.preventDefault();
@@ -396,7 +426,7 @@
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
 					var location, t;
 
-					t = (new Date).getTime();
+					t = internal.dateNow();
 					if (!data.firstTime) {
 						data.firstTime = t;
 					}
@@ -497,9 +527,6 @@
 					throw new Error("Unsupported data version");
 				}
 
-				// add support for getAnimationFrame if not present. No harm in calling this multiple times.
-				internal.polyfillAnimationFrame();
-
 				canvas = this;
 				context = canvas.getContext("2d");
 				$canvas = $(canvas);
@@ -534,18 +561,25 @@
 						iLastEvent = i;
 					}
 					if (i < signatureData.clickstream.length) {
-						requestAnimationFrame(renderFrame, canvas);
+						internal.requestAnimationFrame(renderFrame, canvas);
 					}
 				};
 
-				startTime = new Date().getTime();
+				startTime = internal.dateNow();
 				iLastEvent = -1;
 
-				requestAnimationFrame(renderFrame, canvas);
+				internal.requestAnimationFrame(renderFrame, canvas);
 			})
 		}
 
 	};
+
+	// Create internal polyfills
+
+	// This can't go in methods.init because it's not guaranteed to be called before
+	// animateClickstreamToCanvas or other functions that use these polyfills.
+
+	internal.polyfill.InstallAll();
 
 	$.fn.signaturePanel = function(method) {
 
