@@ -165,7 +165,7 @@ SignaturePanel has a handful of options to configure its appearance and behavior
 
 ## Signature data format
 
-SignaturePanel produces a single JavaScript object that provides all the information necessary to reproduce the signature
+SignaturePanel produces a single JavaScript object that provides all the information necessary to reproduce the signature.
 
 * __dataVersion__ (integer): version of SignatureData. This will be updated whenever the format of this object changes.
 * __canvasWidth__ (float): initial width of the SignaturePanel drawing canvas in pixels
@@ -195,6 +195,20 @@ To recreate a signature from previously captured signature data, you need to cre
 To display the signature, use the `drawClickstreamToCanvas` function with your canvas as a target:
 
     $("#signature-display").signaturePanel("drawClickstreamToCanvas", signatureData);
+
+The function automatically scales the signature so that it fills the dimensions of the canvas.
+
+### Replaying (animating) a signature in the browser from JSON data
+
+Because SignaturePanel captures timing data for signatures, you can use it to replay an animated version of the signature, essentially recreating exactly what the user did when the signature was recorded.
+
+To replay a signature from previously captured signature data, you need to create a `canvas` element in your markup, using whatever size and other CSS styling suits your needs:
+
+    <canvas id="signature-replay" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+
+To play the animated signature, use the `animateClickstreamToCanvas` function with your canvas as a target:
+
+    $("#signature-replay").signaturePanel("animateClickstreamToCanvas", signatureData);
 
 The function automatically scales the signature so that it fills the dimensions of the canvas.
 
