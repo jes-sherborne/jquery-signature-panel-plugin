@@ -519,9 +519,9 @@
 			})
 		},
 
-		animateClickstreamToCanvas : function(signatureData) {
+		animateClickstreamToCanvas : function(signatureData, callback) {
 			return this.each(function() {
-				var canvas, context, scalingFactor, $canvas, startTime, iLastEvent, renderFrame, lastX, lastY;
+				var canvas, context, scalingFactor, $canvas, startTime, iLastEvent, renderFrame, lastX, lastY, totalTime;
 
 				if (signatureData.dataVersion !== 1) {
 					throw new Error("Unsupported data version");
@@ -533,6 +533,11 @@
 
 				internal.clearHtmlCanvas(canvas, context);
 
+				if (signatureData.clickstream.length == 0) {
+					return;
+				}
+
+				totalTime = signatureData.clickstream[signatureData.clickstream.length - 1].t;
 				scalingFactor = internal.scalingFactor($canvas.width(), $canvas.height(), signatureData.canvasWidth, signatureData.canvasHeight);
 
 				//render clickstream
@@ -541,6 +546,11 @@
 				renderFrame = function (animationTime) {
 					var x, y, frameTime, i;
 					frameTime = animationTime - startTime;
+
+					if (callback && callback(frameTime, totalTime)) {
+						return;
+					}
+
 					for (i = iLastEvent + 1; i < signatureData.clickstream.length; i++) {
 						if (signatureData.clickstream[i].t > frameTime) {
 							break;
@@ -560,6 +570,7 @@
 						lastY = y;
 						iLastEvent = i;
 					}
+
 					if (i < signatureData.clickstream.length) {
 						internal.requestAnimationFrame(renderFrame, canvas);
 					}
@@ -568,7 +579,9 @@
 				startTime = internal.dateNow();
 				iLastEvent = -1;
 
-				internal.requestAnimationFrame(renderFrame, canvas);
+				if (signatureData.clickstream.length > 0) {
+					internal.requestAnimationFrame(renderFrame, canvas);
+				}
 			})
 		}
 
