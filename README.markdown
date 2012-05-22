@@ -208,9 +208,18 @@ To replay a signature from previously captured signature data, you need to creat
 
 To play the animated signature, use the `animateClickstreamToCanvas` function with your canvas as a target:
 
-    $("#signature-replay").signaturePanel("animateClickstreamToCanvas", signatureData);
+    $("#signature-replay").signaturePanel("animateClickstreamToCanvas", signatureData, callback);
 
 The function automatically scales the signature so that it fills the dimensions of the canvas.
+
+The optional callback function provides information about the progress of the animation (which you could use to display a progress indicator for the animation. You can also stop the animation by returning true to the callback.
+
+* __function callback(frameTime, totalTime)__ provides information about an animation and provides a way to stop it.
+    * _frameTime_: the current position of the animation in milliseconds. On browsers that support it, it is called at the interval given by requestAnimationFrame, which is typically 60 times per second. This is emulated on older browsers and should fire roughly 60 times per second for foreground windows.
+    * _totalTime_: the total length of the animation in milliseconds.
+    * _return value_: return `true` to stop the animation; return `null` or `false` to continue.
+
+You can find an example of how to use this callback at /examples/signature-panel-animation.html.
 
 ### Generating image files on the server using Ruby
 
