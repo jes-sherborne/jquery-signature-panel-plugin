@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignaturePanel - Animation</title>
+    <!--[if lt IE 9]><script type="text/javascript" src="../external/excanvas.compiled.js"></script><![endif]-->
+    <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="../jquery.signature-panel.js"></script>
+    <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
+
+    <script type="text/javascript">
+        var playing, lastSignature;
+
+        playing = false;
+
+        function signatureOK(signatureData) {
+            lastSignature = signatureData;
+            $("#my-panel").signaturePanel("clear");
+        }
+
+        function signatureCancel() {
+            alert("The user clicked Cancel.");
+        }
+
+        function playbackCallback(frameTime, totalTime) {
+            return !playing;
+        }
+
+        function onTargetClick() {
+            if (lastSignature) {
+                playing = !playing;
+                if (playing) {
+                    $("#my-target").signaturePanel("animateClickstreamToCanvas", lastSignature, playbackCallback);
+                } else {
+                    $("#my-target").signaturePanel("drawClickstreamToCanvas", lastSignature);
+                }
+            } else {
+                alert("Enter a signature first.");
+            }
+        }
+
+        $(document).ready(function() {
+            $("#my-panel").signaturePanel({
+                okCallback: signatureOK,
+                cancelCallback: signatureCancel
+            });
+            $("#my-target").click(onTargetClick);
+        });
+
+    </script>
+
+</head>
+<body>
+    <h1>Sign your name below</h1>
+    <div id="my-panel" style="width: 500px; height: 300px; border: 10px solid gray"></div>
+    <h2>Click below to replay your signature</h2>
+    <p>Click again while the animation is playing to skip to the end.</p>
+    <canvas id="my-target" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+</body>
+</html>
