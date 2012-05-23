@@ -184,11 +184,6 @@
 				requestFunction = window.requestAnimationFrame;
 				cancelFunction = window.cancelAnimationFrame;
 
-				if (!internal.requestAnimationFrame || !internal.cancelAnimationFrame) {
-					internal.requestAnimationFrame = window.requestAnimationFrame;
-					internal.cancelAnimationFrame = window.cancelAnimationFrame;
-				}
-
 				vendors = ['ms', 'moz', 'webkit', 'o'];
 
 				for(i = 0; i < vendors.length && !requestFunction; i++) {
@@ -198,7 +193,7 @@
 			    }
 
 			    if (!requestFunction || !cancelFunction) {
-				    internal.requestAnimationFrame = function(callback, element) {
+				    internal.requestAnimationFrame = function(callback) {
                         var currentTime, timeToCall, id, msPerFrame;
 
                         msPerFrame = 1000 / 60;
@@ -211,8 +206,8 @@
                         clearTimeout(id);
                     };
 			    } else {
-				    internal.requestAnimationFrame = function(callback, element) {
-					    return requestFunction.call(window, callback, element);
+				    internal.requestAnimationFrame = function(callback) {
+					    return requestFunction.call(window, callback);
 				    };
 				    internal.cancelAnimationFrame = function(id) {
 					    return cancelFunction.call(window, id);
@@ -572,7 +567,7 @@
 					}
 
 					if (i < signatureData.clickstream.length) {
-						internal.requestAnimationFrame(renderFrame, canvas);
+						internal.requestAnimationFrame(renderFrame);
 					}
 				};
 
@@ -580,7 +575,7 @@
 				iLastEvent = -1;
 
 				if (signatureData.clickstream.length > 0) {
-					internal.requestAnimationFrame(renderFrame, canvas);
+					internal.requestAnimationFrame(renderFrame);
 				}
 			})
 		}
