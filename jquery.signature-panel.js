@@ -197,9 +197,9 @@
                         var currentTime, timeToCall, id, msPerFrame;
 
                         msPerFrame = 1000 / 60;
-                        currentTime = internal.dateNow();
+                        currentTime = internal.getTimestamp();
                         timeToCall = Math.round((Math.floor(currentTime / msPerFrame) + 1) * msPerFrame);
-                        id = window.setTimeout(function() { callback(internal.dateNow()); }, timeToCall - currentTime);
+                        id = window.setTimeout(function() { callback(internal.getTimestamp()); }, timeToCall - currentTime);
                         return id;
                     };
 				    internal.cancelAnimationFrame = function(id) {
@@ -215,17 +215,21 @@
 			    }
 
 			},
-			InstallDateNow: function() {
-				if (!Date.now) {
-					internal.dateNow = function() {
+			InstallGetTimestamp: function() {
+				if (window.performance.now) {
+					internal.getTimestamp = function() {
+						return window.performance.now();
+					}
+				} else if (Date.now) {
+					internal.getTimestamp = Date.now;
+				} else {
+					internal.getTimestamp = function() {
 						return +(new Date);
 					}
-				} else {
-					internal.dateNow = Date.now;
 				}
 			},
 			InstallAll: function() {
-				internal.polyfill.InstallDateNow();
+				internal.polyfill.InstallGetTimestamp();
 				internal.polyfill.InstallAnimationFrame();
 			}
 		}
@@ -310,7 +314,7 @@
 				handleMouseMove = function(event) {
 					var location, t, inBounds, boundaryLocation, lastLocationInBounds, newPoint, lineStart;
 
-					t = internal.dateNow();
+					t = internal.getTimestamp();
 
 					if ((data.drawState === "draw") || (data.drawState === "suspend")) {
 						event.preventDefault();
@@ -421,7 +425,7 @@
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
 					var location, t;
 
-					t = internal.dateNow();
+					t = internal.getTimestamp();
 					if (!data.firstTime) {
 						data.firstTime = t;
 					}
