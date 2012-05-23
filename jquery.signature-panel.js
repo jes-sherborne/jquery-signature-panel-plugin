@@ -540,6 +540,15 @@
 
 				renderFrame = function (animationTime) {
 					var x, y, frameTime, i;
+
+					if (startTime == 0) {
+						// Start our animation when we get the first frame to render
+
+						// Also fixes a potential problem if animationTime is not given relative to Date.Now(),
+						// which is expected to be the case as in Chrome as of version 21
+						// http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
+						startTime = animationTime;
+					}
 					frameTime = animationTime - startTime;
 
 					if (callback && callback(frameTime, totalTime)) {
@@ -571,7 +580,7 @@
 					}
 				};
 
-				startTime = internal.dateNow();
+				startTime = 0;
 				iLastEvent = -1;
 
 				if (signatureData.clickstream.length > 0) {
