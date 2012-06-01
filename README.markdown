@@ -2,7 +2,7 @@
 
 SignaturePanel is a jQuery plugin that enables you to capture signatures and display them later. It works on the iPad, iPhone, and most common desktop browsers.
 
-SignaturePanel doesn't just capture how the signature appears. It also captures the timing of each gesture so that you have the information you need to replay the signature in real time. By capturing this information, it provides stronger evidence that the signature is genuine.
+SignaturePanel captures both the signature's appearance as well as the timing of each gesture. You can use this information to replay the signature in real time, and it also provides stronger evidence that the signature is genuine.
 
 In addition to the jQuery plugin, SignaturePanel also includes optional server-side libraries that you can use to generate image files from the raw signature data.
 
@@ -17,9 +17,9 @@ SignaturePanel has been tested in the following browsers:
 * Safari (iOS 4+)
 * Chrome
 
-SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are likely to work as well but have not been tested.
+SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are also likely to work but have not been tested.
 
-The optional server-side code to generate images has been tested in the following languages (note that many other versions--both earlier and later--are likely to work as well).:
+The optional server-side code to generate images has been tested in the following languages (note that many other versions--both earlier and later--are also likely to work).:
 
 * Ruby 1.8.7
 * Python 2.7.1
@@ -181,7 +181,7 @@ SignaturePanel produces a single JavaScript object that provides all the informa
 * __clickstream__ (array of objects): actual signature data. Each entry has the following:
     * __x__ (float): x coordinate of the event. 0 ≤ x ≤ canvasWidth
     * __y__ (float): y coordinate of the event. 0 ≤ y ≤ canvasHeight
-    * __t__ (float): time of the event in milliseconds relative to the start of the drawing. The first event is always at t=0.
+    * __t__ (float): time of the event in milliseconds relative to the start of the drawing. The first event is always at t=0. If the user's browser supports it, SignaturePanel will use the high-resolution timer to capture timing data with sub-millisecond precision.
     * __action__ (string): which kind of action this event represents. Possible values are:
         * _gestureStart_: the user has begun to draw a gesture (a signature can contain multiple gestures). There is no an action that explicitly marks the end of a gesture. You will simply receive another gestureStart to indicate that a new gesture is beginning.
         * _gestureContinue_: the user has added a point to the gesture. In other words, the user is actively drawing
@@ -203,7 +203,7 @@ To recreate a signature from previously captured signature data, you need to cre
 To display the signature, use the `drawClickstreamToCanvas` function with your canvas as a target:
 
 ```javascript
-    $("#signature-display").signaturePanel("drawClickstreamToCanvas", signatureData);
+$("#signature-display").signaturePanel("drawClickstreamToCanvas", signatureData);
 ```
 
 The function automatically scales the signature so that it fills the dimensions of the canvas.
