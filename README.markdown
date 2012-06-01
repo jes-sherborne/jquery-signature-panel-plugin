@@ -31,44 +31,46 @@ The easiest way to get started is with a basic example. This example shows how t
 
 You can find this code at /examples/signature-panel-start.html
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>SignaturePanel - Getting Started</title>
-        <!--[if lt IE 9]><script type="text/javascript" src="../external/excanvas.compiled.js"></script><![endif]-->
-        <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
-        <script type="text/javascript" src="../jquery.signature-panel.js"></script>
-        <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignaturePanel - Getting Started</title>
+    <!--[if lt IE 9]><script type="text/javascript" src="../external/excanvas.compiled.js"></script><![endif]-->
+    <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="../jquery.signature-panel.js"></script>
+    <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
 
-        <script type="text/javascript">
+    <script type="text/javascript">
 
-            function signatureOK(signatureData) {
-                // Show the user the signature they've entered.
-                $("#my-target").signaturePanel("drawClickstreamToCanvas", signatureData);
-                $("#my-panel").signaturePanel("clear");
-            }
+        function signatureOK(signatureData) {
+            // Show the user the signature they've entered.
+            $("#my-target").signaturePanel("drawClickstreamToCanvas", signatureData);
+            $("#my-panel").signaturePanel("clear");
+        }
 
-            function signatureCancel() {
-                alert("The user clicked Cancel.");
-            }
+        function signatureCancel() {
+            alert("The user clicked Cancel.");
+        }
 
-            $(document).ready(function() {
-                $("#my-panel").signaturePanel({
-                    okCallback: signatureOK,
-                    cancelCallback: signatureCancel
-                });
+        $(document).ready(function() {
+            $("#my-panel").signaturePanel({
+                okCallback: signatureOK,
+                cancelCallback: signatureCancel
             });
+        });
 
-        </script>
+    </script>
 
-    </head>
-    <body>
-        <h1>Sign your name below</h1>
-        <div id="my-panel" style="width: 500px; height: 300px; border: 10px solid gray"></div>
-        <h2>Here's what you signed</h2>
-        <canvas id="my-target" height="100" width="250" style="border: 1px solid gray;" ></canvas>
-    </body>
-    </html>
+</head>
+<body>
+    <h1>Sign your name below</h1>
+    <div id="my-panel" style="width: 500px; height: 300px; border: 10px solid gray"></div>
+    <h2>Here's what you signed</h2>
+    <canvas id="my-target" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+</body>
+</html>
+```
 
 ## Styling SignaturePanel
 
@@ -88,40 +90,42 @@ Using the iPad style is also straightforward:
 
 Here's an example of how to use the iPad style (you can find this code at /examples/signature-panel-styling.html):
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>SignaturePanel - iPad Styling</title>
-        <!--[if lt IE 9]><script type="text/javascript" src="../external/excanvas.compiled.js"></script><![endif]-->
-        <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
-        <script type="text/javascript" src="../jquery.signature-panel.js"></script>
-        <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignaturePanel - iPad Styling</title>
+    <!--[if lt IE 9]><script type="text/javascript" src="../external/excanvas.compiled.js"></script><![endif]-->
+    <script type="text/javascript" src="../external/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="../jquery.signature-panel.js"></script>
+    <link rel="stylesheet" type="text/css" href="../jquery.signature-panel.css" />
 
-        <script type="text/javascript">
+    <script type="text/javascript">
 
-            function signatureOK(signatureData) {
-                alert("You clicked OK.")
-            }
+        function signatureOK(signatureData) {
+            alert("You clicked OK.")
+        }
 
-            $(document).ready(function() {
-                $("#my-panel").signaturePanel({
-                    okCallback: signatureOK,
-                    okElementType: "link",
-                    cancelElementType: "link",
-                    clearElementType: "link",
-                    controlBarHeight: 42
-                });
+        $(document).ready(function() {
+            $("#my-panel").signaturePanel({
+                okCallback: signatureOK,
+                okElementType: "link",
+                cancelElementType: "link",
+                clearElementType: "link",
+                controlBarHeight: 42
             });
+        });
 
-        </script>
+    </script>
 
-    </head>
-    <body>
-        <h1>Signature Panel Test</h1>
-        <h2>Write your signature below</h2>
-        <div class="signature-panel-ipad" id="my-panel" style="width: 500px; height: 300px; border: 1px solid gray"></div>
-    </body>
-    </html>
+</head>
+<body>
+    <h1>Signature Panel Test</h1>
+    <h2>Write your signature below</h2>
+    <div class="signature-panel-ipad" id="my-panel" style="width: 500px; height: 300px; border: 1px solid gray"></div>
+</body>
+</html>
+```
 
 ### Using your own styles
 
@@ -131,17 +135,19 @@ Each element has a class applied so that it's easy to override with CSS. The eas
 
 Here's the basic structure of the HTML that SignaturePanel generates:
 
-    <div>
-        <div class="signature-panel-wrapper">
-            <canvas>...</canvas>
-            <div class="signature-panel-control"> <!-- Height comes from the controlBarHeight property -->
-                <!-- These can be buttons or links depending on the [clear|ok|cancel]ElementType properties -->
-                <a class="signature-panel-clear">...</a>
-                <button type="button" class="signature-panel-ok">...</button>>
-                <a class="signature-panel-cancel">...</a>
-            </div>
+```html
+<div>
+    <div class="signature-panel-wrapper">
+        <canvas>...</canvas>
+        <div class="signature-panel-control"> <!-- Height comes from the controlBarHeight property -->
+            <!-- These can be buttons or links depending on the [clear|ok|cancel]ElementType properties -->
+            <a class="signature-panel-clear">...</a>
+            <button type="button" class="signature-panel-ok">...</button>>
+            <a class="signature-panel-cancel">...</a>
         </div>
     </div>
+</div>
+```
 
 ## Dynamically creating and destroying SignaturePanel
 
@@ -190,11 +196,15 @@ You can use SignaturePanel's built-in functions to display a previously-captured
 
 To recreate a signature from previously captured signature data, you need to create a `canvas` element in your markup, using whatever size and other CSS styling suits your needs:
 
-    <canvas id="signature-display" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+```html
+<canvas id="signature-display" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+```
 
 To display the signature, use the `drawClickstreamToCanvas` function with your canvas as a target:
 
+```javascript
     $("#signature-display").signaturePanel("drawClickstreamToCanvas", signatureData);
+```
 
 The function automatically scales the signature so that it fills the dimensions of the canvas.
 
@@ -204,11 +214,15 @@ Because SignaturePanel captures timing data for signatures, you can use it to re
 
 To replay a signature from previously captured signature data, you need to create a `canvas` element in your markup, using whatever size and other CSS styling suits your needs:
 
-    <canvas id="signature-replay" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+```html
+<canvas id="signature-replay" height="100" width="250" style="border: 1px solid gray;" ></canvas>
+```
 
 To play the animated signature, use the `animateClickstreamToCanvas` function with your canvas as a target:
 
-    $("#signature-replay").signaturePanel("animateClickstreamToCanvas", signatureData, callback);
+```javascript
+$("#signature-replay").signaturePanel("animateClickstreamToCanvas", signatureData, callback);
+```
 
 The function automatically scales the signature so that it fills the dimensions of the canvas.
 
@@ -227,24 +241,26 @@ The Ruby library uses ImageMagick to generate a `Magick::Image` object, which yo
 
 To generate the image, you will write code like this:
 
-    require 'signature-panel.rb'
-    ...
+```ruby
+require 'signature-panel.rb'
+...
 
-    post '/process-signature' do
-        image = SignaturePanel::GenerateImage(request.body.read)
-        filename = 'latest-signature.png'
+post '/process-signature' do
+    image = SignaturePanel::GenerateImage(request.body.read)
+    filename = 'latest-signature.png'
 
-        image.write(filename)
+    image.write(filename)
 
-        # If you want to stream your PNG directly to a database instead of saving a file,
-        # you can get a binary stream like this:
-        # image.to_blob {self.format = "PNG"}
+    # If you want to stream your PNG directly to a database instead of saving a file,
+    # you can get a binary stream like this:
+    # image.to_blob {self.format = "PNG"}
 
-        content_type :text
+    content_type :text
 
-        # Send the name of the newly-generated file to the client
-        body filename
-    end
+    # Send the name of the newly-generated file to the client
+    body filename
+end
+```
 
 You can find a full working example (written for the [Sinatra microframework](http://www.sinatrarb.com) at /server-image-generators/ruby/example. The SignaturePanel function will work equally well in Ruby on Rails (and presumably any other Ruby web framework).
 
@@ -255,22 +271,24 @@ The Python library uses PIL to generate an `Image` object, which you can use to 
 
 To generate the image, you will write code like this:
 
-    import signature_panel
+```python
+import signature_panel
 
-    ...
+...
 
-    @route('/process-signature', method='POST')
-    def process_signature():
-        image = signature_panel.generate_image(request.body.read())
-        filename = 'latest-signature.png'
+@route('/process-signature', method='POST')
+def process_signature():
+    image = signature_panel.generate_image(request.body.read())
+    filename = 'latest-signature.png'
 
-        # Since this is an Image object, you can save it to a file, stream it to a database, or manipulate it further.
+    # Since this is an Image object, you can save it to a file, stream it to a database, or manipulate it further.
 
-        image.save(filename)
-        response.content_type = 'text; charset=utf-8'
+    image.save(filename)
+    response.content_type = 'text; charset=utf-8'
 
-        # Send the name of the newly-generated file to the client
-        return filename
+    # Send the name of the newly-generated file to the client
+    return filename
+```
 
 You can find a full working example (written for the [Bottle microframework](http://bottlepy.org) at /server-image-generators/python/example. The SignaturePanel function should work equally well in other Python web frameworks as well.
 
@@ -280,18 +298,20 @@ The PHP library uses GD to generate an image object, which you can use to write 
 
 To generate the image, you will write code like this:
 
-    <?php
-    require_once "signature_panel.php";
-    $jsonData = file_get_contents('php://input');
-    $image = generate_signature_panel_image($jsonData);
+```php
+<?php
+require_once "signature_panel.php";
+$jsonData = file_get_contents('php://input');
+$image = generate_signature_panel_image($jsonData);
 
-    $filename = "latest-signature.png";
+$filename = "latest-signature.png";
 
-    # Since this is an Image object, you can save it to a file, stream it to a database, or manipulate it further.
-    imagepng($image, $filename);
+# Since this is an Image object, you can save it to a file, stream it to a database, or manipulate it further.
+imagepng($image, $filename);
 
-    # Send the name of the newly-generated file to the client
-    echo $filename;
-    ?>
+# Send the name of the newly-generated file to the client
+echo $filename;
+?>
+```
 
 You can find a full working example at /server-image-generators/php/example.
