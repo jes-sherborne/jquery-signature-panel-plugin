@@ -368,7 +368,7 @@
 							boundaryLocation = internal.calculateBoundaryCrossing(location, data);
 
                             // resume the drawing at the boundary crossing
-							lineStart = boundaryLocation
+							lineStart = boundaryLocation;
 
 							data.clickstream.push({
 								x: boundaryLocation.x,
