@@ -216,7 +216,7 @@
 
 			},
 			InstallGetTimestamp: function() {
-				if (window.performance.now) {
+				if (window.performance && window.performance.now) {
 					internal.getTimestamp = function() {
 						return window.performance.now();
 					}

@@ -184,11 +184,6 @@
 				requestFunction = window.requestAnimationFrame;
 				cancelFunction = window.cancelAnimationFrame;
 
-				if (!internal.requestAnimationFrame || !internal.cancelAnimationFrame) {
-					internal.requestAnimationFrame = window.requestAnimationFrame;
-					internal.cancelAnimationFrame = window.cancelAnimationFrame;
-				}
-
 				vendors = ['ms', 'moz', 'webkit', 'o'];
 
 				for(i = 0; i < vendors.length && !requestFunction; i++) {
@@ -198,21 +193,21 @@
 			    }
 
 			    if (!requestFunction || !cancelFunction) {
-				    internal.requestAnimationFrame = function(callback, element) {
+				    internal.requestAnimationFrame = function(callback) {
                         var currentTime, timeToCall, id, msPerFrame;
 
                         msPerFrame = 1000 / 60;
-                        currentTime = internal.dateNow();
+                        currentTime = internal.getTimestamp();
                         timeToCall = Math.round((Math.floor(currentTime / msPerFrame) + 1) * msPerFrame);
-                        id = window.setTimeout(function() { callback(internal.dateNow()); }, timeToCall - currentTime);
+                        id = window.setTimeout(function() { callback(internal.getTimestamp()); }, timeToCall - currentTime);
                         return id;
                     };
 				    internal.cancelAnimationFrame = function(id) {
                         clearTimeout(id);
                     };
 			    } else {
-				    internal.requestAnimationFrame = function(callback, element) {
-					    return requestFunction.call(window, callback, element);
+				    internal.requestAnimationFrame = function(callback) {
+					    return requestFunction.call(window, callback);
 				    };
 				    internal.cancelAnimationFrame = function(id) {
 					    return cancelFunction.call(window, id);
@@ -220,17 +215,21 @@
 			    }
 
 			},
-			InstallDateNow: function() {
-				if (!Date.now) {
-					internal.dateNow = function() {
+			InstallGetTimestamp: function() {
+				if (window.performance && window.performance.now) {
+					internal.getTimestamp = function() {
+						return window.performance.now();
+					}
+				} else if (Date.now) {
+					internal.getTimestamp = Date.now;
+				} else {
+					internal.getTimestamp = function() {
 						return +(new Date);
 					}
-				} else {
-					internal.dateNow = Date.now;
 				}
 			},
 			InstallAll: function() {
-				internal.polyfill.InstallDateNow();
+				internal.polyfill.InstallGetTimestamp();
 				internal.polyfill.InstallAnimationFrame();
 			}
 		}
@@ -315,7 +314,7 @@
 				handleMouseMove = function(event) {
 					var location, t, inBounds, boundaryLocation, lastLocationInBounds, newPoint, lineStart;
 
-					t = internal.dateNow();
+					t = internal.getTimestamp();
 
 					if ((data.drawState === "draw") || (data.drawState === "suspend")) {
 						event.preventDefault();
@@ -426,7 +425,7 @@
 				$canvas.bind("mousedown.signaturePanel touchstart.signaturePanel", function (event) {
 					var location, t;
 
-					t = internal.dateNow();
+					t = internal.getTimestamp();
 					if (!data.firstTime) {
 						data.firstTime = t;
 					}
@@ -545,6 +544,15 @@
 
 				renderFrame = function (animationTime) {
 					var x, y, frameTime, i;
+
+					if (startTime == 0) {
+						// Start our animation when we get the first frame to render
+
+						// Also fixes a potential problem if animationTime is not given relative to Date.Now(),
+						// which is expected to be the case as in Chrome as of version 21
+						// http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
+						startTime = animationTime;
+					}
 					frameTime = animationTime - startTime;
 
 					if (callback && callback(frameTime, totalTime)) {
@@ -572,15 +580,15 @@
 					}
 
 					if (i < signatureData.clickstream.length) {
-						internal.requestAnimationFrame(renderFrame, canvas);
+						internal.requestAnimationFrame(renderFrame);
 					}
 				};
 
-				startTime = internal.dateNow();
+				startTime = 0;
 				iLastEvent = -1;
 
 				if (signatureData.clickstream.length > 0) {
-					internal.requestAnimationFrame(renderFrame, canvas);
+					internal.requestAnimationFrame(renderFrame);
 				}
 			})
 		}
