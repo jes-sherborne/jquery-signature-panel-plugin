@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'signature-panel.rb'
+require './signature-panel.rb'
 require 'securerandom'
 
 get '/' do
