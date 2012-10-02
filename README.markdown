@@ -21,7 +21,7 @@ SignaturePanel has been tested with jQuery 1.4.4 and later. Earlier versions are
 
 The optional server-side code to generate images has been tested in the following languages (note that many other versions--both earlier and later--are also likely to work).:
 
-* Ruby 1.8.7
+* Ruby 1.8.7, 1.9.2
 * Python 2.7.1
 * PHP 5.3.6
 
