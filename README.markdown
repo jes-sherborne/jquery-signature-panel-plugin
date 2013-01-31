@@ -29,7 +29,7 @@ The optional server-side code to generate images has been tested in the followin
 
 The easiest way to get started is with a basic example. This example shows how to capture a signature and display it elsewhere. It optionally loads ExplorerCanvas so that it works in older versions of IE that don't support the HTML5 canvas.
 
-You can find this code at /examples/signature-panel-start.html
+You can find this code at [examples/signature-panel-start.html](examples/signature-panel-start.html)
 
 ```html
 <!DOCTYPE html>
@@ -88,7 +88,7 @@ Using the iPad style is also straightforward:
 * Add the class `signature-panel-ipad` to your SignaturePanel `div`
 * When initializing the SignaturePanel, set all the `ElementType` properties to `"link"` and set `controlBarHeight: 42`
 
-Here's an example of how to use the iPad style (you can find this code at /examples/signature-panel-styling.html):
+Here's an example of how to use the iPad style (you can find this code at [examples/signature-panel-styling.html](examples/signature-panel-styling.html)):
 
 ```html
 <!DOCTYPE html>
@@ -226,14 +226,14 @@ $("#signature-replay").signaturePanel("animateClickstreamToCanvas", signatureDat
 
 The function automatically scales the signature so that it fills the dimensions of the canvas.
 
-The optional callback function provides information about the progress of the animation (which you could use to display a progress indicator for the animation. You can also stop the animation by returning true to the callback.
+The optional callback function provides information about the progress of the animation (which you could use to display a progress indicator for the animation. You can also stop the animation by returning `true` to the callback.
 
 * __function callback(frameTime, totalTime)__ provides information about an animation and provides a way to stop it.
     * _frameTime_: the current position of the animation in milliseconds. On browsers that support it, it is called at the interval given by requestAnimationFrame, which is typically 60 times per second. This is emulated on older browsers and should fire roughly 60 times per second for foreground windows.
     * _totalTime_: the total length of the animation in milliseconds.
     * _return value_: return `true` to stop the animation; return `null` or `false` to continue.
 
-You can find an example of how to use this callback at /examples/signature-panel-animation.html.
+You can find an example of how to use this callback at [examples/signature-panel-animation.html](examples/signature-panel-animation.html).
 
 ### Generating image files on the server using Ruby
 
@@ -262,7 +262,7 @@ post '/process-signature' do
 end
 ```
 
-You can find a full working example (written for the [Sinatra microframework](http://www.sinatrarb.com) at /server-image-generators/ruby/example. The SignaturePanel function will work equally well in Ruby on Rails (and presumably any other Ruby web framework).
+You can find a full working example (written for the [Sinatra microframework](http://www.sinatrarb.com) at [server-image-generators/ruby/example](server-image-generators/ruby/example). The SignaturePanel function will work equally well in Ruby on Rails (and presumably other Ruby web frameworks).
 
 
 ### Generating image files on the server using Python
@@ -290,7 +290,7 @@ def process_signature():
     return filename
 ```
 
-You can find a full working example (written for the [Bottle microframework](http://bottlepy.org) at /server-image-generators/python/example. The SignaturePanel function should work equally well in other Python web frameworks as well.
+You can find a full working example (written for the [Bottle microframework](http://bottlepy.org) at [server-image-generators/python/example](server-image-generators/python/example). The SignaturePanel function should work equally well in other Python web frameworks.
 
 ### Generating image files on the server using PHP
 
@@ -314,4 +314,4 @@ echo $filename;
 ?>
 ```
 
-You can find a full working example at /server-image-generators/php/example.
+You can find a full working example at [server-image-generators/php/example](server-image-generators/php/example).

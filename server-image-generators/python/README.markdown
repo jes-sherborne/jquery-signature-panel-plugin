@@ -7,5 +7,5 @@ To run the example, just type the following in a console:
 
     python example.py
 
-Then, navigate to http://localhost:8080
+Then, navigate to [http://localhost:8080](http://localhost:8080)
 

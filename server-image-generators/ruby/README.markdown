@@ -7,5 +7,5 @@ To run the example, just type the following in a console:
 
     ruby -rubygems example.rb
 
-Then, navigate to http://localhost:4567
+Then, navigate to [http://localhost:4567](http://localhost:4567)
 
